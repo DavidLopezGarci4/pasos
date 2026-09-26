@@ -21,9 +21,19 @@ import {
   resetChild,
   deleteChild,
 } from "../lib/domain";
-import { saveStoredFamily, setActiveUser, exportFamilyBackup, importFamilyBackup, getStoredUsers, saveStoredUsers } from "../lib/mobile-storage";
+import {
+  saveStoredFamily,
+  setActiveUser,
+  exportFamilyBackup,
+  importFamilyBackup,
+  saveDiskBackupSnapshot,
+  getStoredUsers,
+  saveStoredUsers,
+} from "../lib/mobile-storage";
 import { Share } from "@capacitor/share";
 import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
+import { PinModal } from "./pin-modal";
+import { fireConfetti } from "../lib/confetti";
 import { Brand, Garden, Icon } from "./icon";
 import { PixelPet } from "./pixel-pet";
 import { PetView } from "./pet-modal";
@@ -44,13 +54,105 @@ export function Portal({
   snapshot: Snapshot;
   onUpdate: () => void;
 }) {
-  const [view, setView] = useState<View>("home");
+  const [view, setView] = useState<View>(() => {
+    if (window.location.hash.includes("pet")) return "pet";
+    if (window.location.hash.includes("routines")) return "tasks";
+    return "home";
+  });
+
+  React.useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash.includes("pet")) setView("pet");
+      if (window.location.hash.includes("routines")) setView("tasks");
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
   const [showTechStack, setShowTechStack] = useState(false);
   const [activeRoutineChild, setActiveRoutineChild] = useState<Child | null>(null);
   const [soundMuted, setSoundMuted] = useState(isSoundMuted());
+  const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [pinModalMode, setPinModalMode] = useState<"verify" | "create">("verify");
+  const [pinTargetUser, setPinTargetUser] = useState<Member | null>(null);
+  const [showUserSwitcher, setShowUserSwitcher] = useState(false);
+  const restoreFileRef = React.useRef<HTMLInputElement>(null);
 
   const { family, user, members, today } = snapshot;
   const parent = user.role === "parent";
+
+  const handleRequestSwitchUser = (target: Member) => {
+    setShowUserSwitcher(false);
+    if (target.id === user.id) return;
+
+    if (target.role === "parent") {
+      setPinTargetUser(target);
+      setPinModalMode("verify");
+      setPinModalOpen(true);
+    } else {
+      setActiveUser(target);
+      hapticSuccess();
+      onUpdate();
+    }
+  };
+
+  const handlePinSuccess = (enteredPin: string) => {
+    if (pinModalMode === "verify") {
+      if (pinTargetUser) {
+        setActiveUser(pinTargetUser);
+        setPinTargetUser(null);
+      }
+      setPinModalOpen(false);
+      hapticSuccess();
+      onUpdate();
+    } else if (pinModalMode === "create") {
+      family.settings.adultPin = enteredPin;
+      saveStoredFamily({ ...family });
+      setPinModalOpen(false);
+      hapticSuccess();
+      alert("¡PIN de control parental actualizado correctamente!");
+      onUpdate();
+    }
+  };
+
+  const handleRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = String(event.target?.result || "");
+        const res = importFamilyBackup(text);
+        if (res.success) {
+          hapticSuccess();
+          fireConfetti({ count: 70 });
+          alert("¡Copia de seguridad restaurada correctamente con éxito!");
+          onUpdate();
+        } else {
+          throw new Error(res.error || "Archivo no compatible.");
+        }
+      } catch (err: unknown) {
+        hapticWarning();
+        alert(err instanceof Error ? err.message : "Error al restaurar archivo.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleSaveDiskSnapshot = async () => {
+    try {
+      const res = await saveDiskBackupSnapshot();
+      if (res.success) {
+        hapticSuccess();
+        alert("¡Copia guardada en el almacenamiento local del dispositivo!\n" + (res.uri || "Pasos/pasos-backup-latest.json"));
+      } else {
+        throw new Error(res.error || "No se pudo guardar");
+      }
+    } catch (err: unknown) {
+      hapticWarning();
+      alert("Error al guardar copia en disco: " + (err instanceof Error ? err.message : ""));
+    }
+  };
 
   const visibleChildren = parent
     ? family.children
@@ -217,6 +319,9 @@ export function Portal({
       reviewRequest(family, requestId, status, note, user);
       saveStoredFamily({ ...family });
       hapticSuccess();
+      if (status === "approved" || status === "delivered") {
+        fireConfetti({ count: 55 });
+      }
       onUpdate();
     } catch (err: unknown) {
       hapticWarning();
@@ -332,15 +437,85 @@ export function Portal({
           )}
         </nav>
 
-        <div className="sidebar-user">
+        <div className="sidebar-user" style={{ position: "relative" }}>
           <div className="mini-avatar">{user.name[0]?.toUpperCase()}</div>
-          <span>
+          <span style={{ cursor: "pointer" }} onClick={() => setShowUserSwitcher(!showUserSwitcher)}>
             <strong>{user.name}</strong>
-            <small>{parent ? "Adulto / Padre" : "Hijo"}</small>
+            <small>{parent ? "Adulto / Padre" : "Hijo"} · Cambiar ▾</small>
           </span>
-          <button onClick={handleLogout} title="Cerrar sesión">
+          <button
+            type="button"
+            onClick={() => setShowUserSwitcher(!showUserSwitcher)}
+            title="Cambiar de perfil familiar"
+            style={{ padding: 6, color: "var(--green)" }}
+          >
+            <Icon name="family" size={16} />
+          </button>
+          <button onClick={handleLogout} title="Cerrar sesión" style={{ padding: 6 }}>
             <Icon name="logout" size={16} />
           </button>
+
+          {showUserSwitcher && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "100%",
+                left: 0,
+                right: 0,
+                backgroundColor: "#ffffff",
+                border: "1px solid var(--line)",
+                borderRadius: 12,
+                padding: 8,
+                marginBottom: 8,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                zIndex: 100,
+              }}
+            >
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", padding: "4px 8px 8px" }}>
+                CAMBIAR PERFIL FAMILIAR
+              </div>
+              {getStoredUsers().map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => handleRequestSwitchUser(m)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: m.id === user.id ? "#edf2e8" : "transparent",
+                    color: "var(--ink)",
+                    textAlign: "left",
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      backgroundColor: m.role === "parent" ? "#416850" : "#fbefe4",
+                      color: m.role === "parent" ? "#fff" : "#986b45",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 10,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {m.name[0]?.toUpperCase()}
+                  </span>
+                  <span style={{ flex: 1, fontWeight: m.id === user.id ? 700 : 500 }}>{m.name}</span>
+                  {m.role === "parent" && <Icon name="lock" size={12} />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </aside>
 
@@ -955,11 +1130,20 @@ export function Portal({
 
               <div>
                 <section className="panel">
-                  <span className="eyebrow">COPIA DE SEGURIDAD</span>
-                  <h3>Respaldo local</h3>
+                  <span className="eyebrow">COPIA DE SEGURIDAD Y RESPALDO</span>
+                  <h3>Respaldo y Restauración Local</h3>
                   <p className="muted" style={{ marginBottom: 14 }}>
-                    Exporta tus datos familiares en formato JSON para no perder nada.
+                    Exporta o restaura tus datos familiares en formato JSON seguro. Todo reside 100% en tu dispositivo.
                   </p>
+
+                  <input
+                    type="file"
+                    ref={restoreFileRef}
+                    onChange={handleRestoreFile}
+                    accept=".json,application/json"
+                    style={{ display: "none" }}
+                  />
+
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                     <button
                       type="button"
@@ -1004,11 +1188,58 @@ export function Portal({
                           });
                           hapticSuccess();
                         } catch {
-                          // User dismissed or share error
+                          // Dismissed
                         }
                       }}
                     >
                       Compartir archivo
+                    </button>
+
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      onClick={handleSaveDiskSnapshot}
+                      title="Guardar archivo en la carpeta Documents/Pasos del móvil"
+                    >
+                      <Icon name="archive" size={14} /> Guardar en almacenamiento
+                    </button>
+
+                    <button
+                      type="button"
+                      className="button primary small"
+                      onClick={() => {
+                        hapticTap();
+                        restoreFileRef.current?.click();
+                      }}
+                      title="Seleccionar archivo .json para restaurar datos"
+                    >
+                      <span>📥</span> Restaurar copia (.json)
+                    </button>
+                  </div>
+                </section>
+
+                <section className="panel" style={{ marginTop: 22 }}>
+                  <span className="eyebrow">SEGURIDAD Y CONTROL PARENTAL</span>
+                  <h3>PIN de Adulto</h3>
+                  <p className="muted" style={{ marginBottom: 14 }}>
+                    Protege el acceso a las funciones de administración, asignación de puntos y configuración frente a cambios involuntarios de los niños.
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <span className="status green">
+                        <i /> PIN de 4 dígitos activo
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      onClick={() => {
+                        hapticTap();
+                        setPinModalMode("create");
+                        setPinModalOpen(true);
+                      }}
+                    >
+                      <Icon name="lock" size={14} /> Cambiar PIN
                     </button>
                   </div>
                 </section>
@@ -1059,6 +1290,24 @@ export function Portal({
           onClose={() => {
             setActiveRoutineChild(null);
             onUpdate();
+          }}
+        />
+      )}
+
+      {pinModalOpen && (
+        <PinModal
+          mode={pinModalMode}
+          expectedPin={family.settings.adultPin || "1234"}
+          title={pinModalMode === "create" ? "Nuevo PIN Parental" : "Acceso de Adulto"}
+          subtitle={
+            pinModalMode === "create"
+              ? "Elige un código PIN de 4 dígitos para proteger la zona de adultos"
+              : `Introduce el PIN de 4 dígitos para continuar como ${pinTargetUser?.name || "adulto"}`
+          }
+          onSuccess={handlePinSuccess}
+          onCancel={() => {
+            setPinModalOpen(false);
+            setPinTargetUser(null);
           }}
         />
       )}

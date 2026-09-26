@@ -4,4 +4,8 @@
     <string name="title_activity_main">Pasos</string>
     <string name="package_name">com.pasos.familia</string>
     <string name="custom_url_scheme">com.pasos.familia</string>
+    <string name="shortcut_routine_short">Rutinas</string>
+    <string name="shortcut_routine_long">Iniciar rutinas diarias</string>
+    <string name="shortcut_pet_short">Mascota</string>
+    <string name="shortcut_pet_long">Cuidar mascota virtual</string>
 </resources>

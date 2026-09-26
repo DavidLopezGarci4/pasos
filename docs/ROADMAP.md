@@ -29,7 +29,7 @@ Pasos evoluciona bajo un modelo de doble arquitectura complementaria:
 
 ---
 
-### v1.1.0 — Automatización, Identidad Visual y Ergonomía (Actual)
+### v1.1.0 — Automatización, Identidad Visual y Ergonomía
 * [x] **Identidad Visual Dual:**
   * Icono estándar Android/PWA (Squircle) con emblema botánico y acentos de esfuerzo.
   * Icono versión Verticons (tarjeta vertical adaptada a pantallas alargadas de smartphone).
@@ -45,7 +45,30 @@ Pasos evoluciona bajo un modelo de doble arquitectura complementaria:
 
 ---
 
-### v1.2.0 — Sincronización Local P2P sin Nube
+### v1.2.0 — Características Frontera Mobile & Seguridad de Datos (Actual)
+* [x] **Autonomía Offline Absoluta (0% Red):**
+  * Retirada total de dependencias CDN de Google Fonts en favor de una pila tipográfica nativa de sistema de alto rendimiento sin retardos de red.
+* [x] **PIN Parental y Blindaje de Perfil Adulto:**
+  * Modal táctil de 4 dígitos (`PinModal`) con teclado numérico nativo, retroalimentación micro-háptica y animación de sacudida (shake) en caso de PIN incorrecto.
+  * Selector interactivo de miembros de la familia con bloqueo por PIN al intentar ingresar al perfil de adulto desde perfiles infantiles.
+  * Gestión y actualización del PIN desde la pestaña de Ajustes.
+* [x] **Restauración de Copias de Seguridad (SAF / File Picker):**
+  * Selector de archivos nativo para importar backups `.json` en pantalla de bienvenida y en Ajustes.
+  * Guardado automático de snapshot en almacenamiento local (`Documents/Pasos/`) mediante `@capacitor/filesystem`.
+* [x] **Notificaciones Accionables e Interactivas de Android:**
+  * Registro de tipos de acción Android (`ROUTINE_ACTIONS`) con botones directos '✓ Marcar Hecha' y '⏰ Posponer 15m' en la cortina de notificaciones.
+  * Procesamiento en segundo plano de tareas marcadas o pospuestas.
+* [x] **Motor de Física de Partículas Canvas 2D:**
+  * Celebración de confeti a 60 FPS con gravedad, resistencia al aire, rotación 3D y ráfagas micro-hápticas al completar rutinas y aprobar solicitudes.
+* [x] **Sensor Físico Acelerómetro (Shake to Play):**
+  * Detección de agitación del dispositivo vía `devicemotion` para jugar e interactuar físicamente con la mascota virtual.
+* [x] **Integración Android 15 & App Shortcuts:**
+  * Atajos dinámicos de lanzador (`shortcuts.xml`) para abrir directamente 'Rutinas' y 'Mascota'.
+  * Compatibilidad con gestos predictivos de Android 14+ y 15 (`enableOnBackInvokedCallback="true"`).
+
+---
+
+### v1.3.0 — Sincronización Local P2P sin Nube
 * [ ] **Sincronización por Código QR:**
   * Generación de código QR dinámico con snapshot encriptado para transferir datos entre el móvil del padre y la tablet del hijo sin cables ni internet.
 * [ ] **Sincronización LAN / Wi-Fi Local:**

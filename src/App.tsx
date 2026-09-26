@@ -6,6 +6,7 @@ import { dayKey } from "./lib/model";
 import { getScreenLockSetting, applyScreenLock } from "./lib/screen-lock";
 import { Portal } from "./components/portal";
 import { Welcome } from "./components/welcome";
+import { initNotificationActions } from "./lib/notifications";
 
 export function App() {
   const [, setTick] = useState(0);
@@ -24,6 +25,9 @@ export function App() {
     const fam = getStoredFamily();
     applyScreenLock(getScreenLockSetting(fam?.settings.screenLockMargins));
 
+    // Inicializar acciones interactivas de notificaciones Android
+    initNotificationActions().catch(() => {});
+
     // Handle Android hardware back button
     let backListenerHandle: { remove: () => Promise<void> } | null = null;
     try {
@@ -40,6 +44,22 @@ export function App() {
       // Ignored
     }
 
+    // Handle App Shortcuts and deep links
+    let urlListenerHandle: { remove: () => Promise<void> } | null = null;
+    try {
+      CapApp.addListener("appUrlOpen", (event) => {
+        if (event.url.includes("routines")) {
+          window.location.hash = "routines";
+        } else if (event.url.includes("pet")) {
+          window.location.hash = "pet";
+        }
+      }).then((handle) => {
+        urlListenerHandle = handle;
+      }).catch(() => {});
+    } catch {
+      // Ignored
+    }
+
     const unsub = subscribeStore(() => {
       setTick((t) => t + 1);
     });
@@ -48,6 +68,9 @@ export function App() {
       unsub();
       if (backListenerHandle) {
         backListenerHandle.remove().catch(() => {});
+      }
+      if (urlListenerHandle) {
+        urlListenerHandle.remove().catch(() => {});
       }
     };
   }, []);

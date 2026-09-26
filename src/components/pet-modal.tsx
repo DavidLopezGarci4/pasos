@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { petCatalog, petStageLabels, petItemsCatalog, type Child, type Snapshot } from "../lib/model";
 import { feedPet, playPet, buyPetItem, togglePetAccessory } from "../lib/domain";
 import { saveStoredFamily } from "../lib/mobile-storage";
@@ -9,8 +9,58 @@ import { Icon } from "./icon";
 
 export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapshot }) {
   const [activeTab, setActiveTab] = useState<"play" | "feed" | "shop">("play");
+  const [shakeNotice, setShakeNotice] = useState<string | null>(null);
   const pet = child.pet;
   const family = snapshot.family;
+
+  // Sensor Acelerómetro: Agitar para jugar con la mascota (Hardware Integration)
+  useEffect(() => {
+    if (!pet || pet.stage === "egg") return;
+
+    let lastX = 0, lastY = 0, lastZ = 0;
+    let lastTime = performance.now();
+    let cooldown = 0;
+
+    const handleMotion = (e: DeviceMotionEvent) => {
+      const acc = e.accelerationIncludingGravity || e.acceleration;
+      if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+      const now = performance.now();
+      const diffTime = now - lastTime;
+      if (diffTime < 120) return; // Sample every 120ms
+      lastTime = now;
+
+      const deltaX = Math.abs(acc.x - lastX);
+      const deltaY = Math.abs(acc.y - lastY);
+      const deltaZ = Math.abs(acc.z - lastZ);
+      const speed = ((deltaX + deltaY + deltaZ) / diffTime) * 1000;
+
+      lastX = acc.x;
+      lastY = acc.y;
+      lastZ = acc.z;
+
+      if (speed > 35 && now - cooldown > 3000) {
+        cooldown = now;
+        if (child.pet && child.pet.energy > 0) {
+          try {
+            playPet(child);
+            saveStoredFamily({ ...family });
+            hapticSuccess();
+            playLevelUp();
+            setShakeNotice(`¡Agitaste tu móvil! Jugaste con ${child.pet.name} 🎮 (+5 XP)`);
+            setTimeout(() => setShakeNotice(null), 3500);
+          } catch {
+            // Pet out of energy
+          }
+        }
+      }
+    };
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => {
+      window.removeEventListener("devicemotion", handleMotion);
+    };
+  }, [pet, child, family]);
 
   const currentHour = new Date().getHours();
   const isNight = currentHour >= 21 || currentHour < 8;
@@ -172,6 +222,29 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
             <PixelPet type={pet.type} stage={pet.stage} accessories={equippedIds} size={140} mood={petMood} />
           </div>
 
+          {shakeNotice && (
+            <div
+              style={{
+                position: "absolute",
+                top: 8,
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "#416850",
+                color: "#ffffff",
+                padding: "6px 12px",
+                borderRadius: 20,
+                fontSize: 11,
+                fontWeight: 700,
+                zIndex: 20,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                whiteSpace: "nowrap",
+                border: "1px solid #729879",
+              }}
+            >
+              {shakeNotice}
+            </div>
+          )}
+
           <div className="pet-speech-bubble">
             <span>{moodEmoji} {moodText}</span>
           </div>
@@ -259,6 +332,23 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
                 ? `👋 Acariciar y jugar con ${pet.name} (-1 ⚡, +15 Felicidad, +2 XP)`
                 : `⚡ Sin energía (Completa tareas para recargar)`}
             </button>
+
+            <div
+              style={{
+                marginTop: 12,
+                padding: "8px 12px",
+                borderRadius: 10,
+                backgroundColor: "#edf2e8",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 11,
+                color: "#416850",
+              }}
+            >
+              <span>📱</span>
+              <span><strong>Sensor de movimiento:</strong> ¡Agita tu móvil físicamente para jugar con {pet.name}!</span>
+            </div>
           </div>
         )}
 

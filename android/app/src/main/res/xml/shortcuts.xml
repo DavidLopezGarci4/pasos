@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="shortcut_routine"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_routine_short"
+        android:shortcutLongLabel="@string/shortcut_routine_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.pasos.familia"
+            android:targetClass="com.pasos.familia.MainActivity"
+            android:data="pasos://routines" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="shortcut_pet"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_pet_short"
+        android:shortcutLongLabel="@string/shortcut_pet_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.pasos.familia"
+            android:targetClass="com.pasos.familia.MainActivity"
+            android:data="pasos://pet" />
+    </shortcut>
+</shortcuts>

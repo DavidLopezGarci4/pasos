@@ -6,6 +6,7 @@ import { PixelPet } from "./pixel-pet";
 import { Icon } from "./icon";
 import { hapticSuccess, hapticTap } from "../lib/haptics";
 import { playTaskDone, playLevelUp, playTap } from "../lib/sound";
+import { fireConfetti } from "../lib/confetti";
 
 interface RoutineRunnerProps {
   family: Family;
@@ -59,6 +60,7 @@ export function RoutineRunner({
     // Check if that was the last task
     if (pendingTasks.length <= 1) {
       playLevelUp();
+      fireConfetti({ count: 75 });
       setShowCelebration(true);
     } else {
       // Stay on same index or advance

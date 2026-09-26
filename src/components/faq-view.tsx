@@ -52,16 +52,17 @@ const FAQ_DATA: FAQSection[] = [
         ],
       },
       {
-        q: "¿Cómo cerrar sesión o cambiar de usuario?",
+        q: "¿Cómo cerrar sesión o cambiar de usuario con PIN parental?",
         points: [
-          "Pulsa el botón de salida en la barra lateral o inferior junto al perfil activo.",
-          "Selecciona el miembro en la pantalla de bienvenida.",
+          "Pulsa sobre tu nombre en la barra lateral para desplegar el selector de usuarios.",
+          "Cambia directamente a los perfiles infantiles sin fricción.",
+          "Para entrar a un perfil de adulto se solicita el PIN de 4 dígitos para proteger la privacidad.",
         ],
       },
     ],
   },
   {
-    title: "3. Rutinas, Tareas y Hábitos Diarios",
+    title: "3. Rutinas, Tareas y Notificaciones Accionables",
     items: [
       {
         q: "¿Cómo se crean tareas y rutinas acordadas?",
@@ -72,10 +73,17 @@ const FAQ_DATA: FAQSection[] = [
         ],
       },
       {
-        q: "¿Cómo se marcan las tareas realizadas?",
+        q: "¿Qué son las notificaciones accionables?",
         points: [
-          "El hijo pulsa «Marcar hecha» en su panel personal.",
-          "El adulto puede validar y marcar la tarea de cada hijo asignado individualmente.",
+          "Los recordatorios en la cortina de Android incluyen botones de acción directa.",
+          "Puedes pulsar «✓ Marcar Hecha» o «⏰ Posponer 15m» directamente sin abrir la app.",
+        ],
+      },
+      {
+        q: "¿Cómo funciona el asistente de rutinas a pantalla completa?",
+        points: [
+          "Modo guiado con temporizador pixel-art que acompaña al niño paso a paso.",
+          "Al terminar todos los pasos del día, celebra con un motor de partículas de confeti Canvas 2D.",
         ],
       },
     ],
@@ -102,7 +110,7 @@ const FAQ_DATA: FAQSection[] = [
     ],
   },
   {
-    title: "5. Mascota Virtual 8-Bits y Gamificación",
+    title: "5. Mascota Virtual 8-Bits y Sensor de Movimiento (Acelerómetro)",
     items: [
       {
         q: "¿Cómo se adopta y evoluciona la mascota?",
@@ -112,23 +120,29 @@ const FAQ_DATA: FAQSection[] = [
         ],
       },
       {
-        q: "¿Cómo cuidar la mascota?",
+        q: "¿Cómo funciona el sensor físico Shake to Play?",
         points: [
-          "Gasta energía jugando y recupera energía completando rutinas.",
-          "Aliméntala con comida del catálogo para mantener alta su felicidad.",
-          "Desbloquea accesorios (gorras, coronas, gafas, varitas) con puntos ganados.",
+          "En la consola de la mascota, agita físicamente tu smartphone Android para jugar.",
+          "El acelerómetro detecta la sacudida y otorga XP y felicidad con vibración háptica.",
         ],
       },
     ],
   },
   {
-    title: "6. Copias de Seguridad y Respaldo Local",
+    title: "6. Copias de Seguridad, Respaldo en Disco y Restauración SAF",
     items: [
       {
-        q: "¿Cómo respaldo mis datos?",
+        q: "¿Cómo respaldo mis datos en el dispositivo?",
         points: [
-          "En «Ajustes» del adulto, usa «Copiar backup JSON» o «Compartir archivo».",
-          "Puedes guardar el JSON en Google Drive, enviarlo por mensajería o guardarlo en tu tarjeta de memoria.",
+          "En «Ajustes», pulsa «Guardar en almacenamiento» para escribir en Documents/Pasos.",
+          "O usa «Compartir archivo» para enviarlo por WhatsApp o guardarlo en Drive.",
+        ],
+      },
+      {
+        q: "¿Cómo restauro una copia de seguridad existente (.json)?",
+        points: [
+          "En la pantalla de bienvenida o en «Ajustes», pulsa «Restaurar copia (.json)».",
+          "Selecciona el archivo desde tu explorador de archivos nativo de Android.",
         ],
       },
     ],

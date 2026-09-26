@@ -1,18 +1,19 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) - Pasos Móvil (APK)
 
-> Guía de referencia rápida y resolución de dudas sobre todas las funciones y herramientas activas en la versión actual de la app móvil Pasos (Android APK v1.0.0).
+> Guía de referencia rápida y resolución de dudas sobre todas las funciones y herramientas activas en la versión actual de la app móvil Pasos (Android APK v1.2.0).
 
 ---
 
 ## Índice Rápido
 1. [Seguridad, Privacidad y Almacenamiento Offline](#1-seguridad-privacidad-y-almacenamiento-offline)
-2. [Gestión de Perfiles y Roles (Padres e Hijos)](#2-gestión-de-perfiles-y-roles-padres-e-hijos)
+2. [Gestión de Perfiles, Selector Rápido y PIN Parental](#2-gestión-de-perfiles-selector-rápido-y-pin-parental)
 3. [Rutinas, Tareas y Hábitos Diarios](#3-rutinas-tareas-y-hábitos-diarios)
-4. [La Barra de Progreso y Reconocimiento de Esfuerzo](#4-la-barra-de-progreso-y-reconocimiento-de-esfuerzo)
-5. [Mascota Virtual 8-Bits y Gamificación](#5-mascota-virtual-8-bits-y-gamificación)
-6. [Catálogo de Recompensas y Canjes](#6-catálogo-de-recompensas-y-canjes)
-7. [Copias de Seguridad y Respaldo Local](#7-copias-de-seguridad-y-respaldo-local)
-8. [Transparencia Técnica y Diagnóstico de Salud](#8-transparencia-técnica-y-diagnóstico-de-salud)
+4. [Notificaciones Accionables y Atajos del Sistema](#4-notificaciones-accionables-y-atajos-del-sistema)
+5. [La Barra de Progreso y Reconocimiento de Esfuerzo](#5-la-barra-de-progreso-y-reconocimiento-de-esfuerzo)
+6. [Mascota Virtual 8-Bits y Sensor de Movimiento (Acelerómetro)](#6-mascota-virtual-8-bits-y-sensor-de-movimiento-acelerómetro)
+7. [Catálogo de Recompensas y Canjes](#7-catálogo-de-recompensas-y-canjes)
+8. [Copias de Seguridad, Respaldo en Disco y Restauración SAF](#8-copias-de-seguridad-respaldo-en-disco-y-restauración-saf)
+9. [Ergonomía, Barrera de 0.5 cm y Transparencia Técnica](#9-ergonomía-barrera-de-05-cm-y-transparencia-técnica)
 
 ---
 
@@ -24,112 +25,100 @@
 * **Privacidad infantil total:** Cumple con las normativas más estrictas de protección de datos infantiles al operar sin telemetría ni rastreadores.
 
 ### ¿Qué ocurre si no tengo conexión a internet o activo el modo avión?
-* **Funcionamiento ininterrumpido:** La APK está diseñada para ser plenamente operativa sin cobertura ni red Wi-Fi.
-* **Respuesta instantánea:** Al no depender de llamadas de red remotas, todas las operaciones de carga y guardado son inmediatas.
+* **Funcionamiento ininterrumpido:** La APK está diseñada para ser plenamente autónoma sin red Wi-Fi ni cobertura.
+* **Cero dependencias remotas:** Las fuentes tipográficas y elementos gráficos están empaquetados localmente, eliminando tiempos de espera de red.
 
 ---
 
-## 2. Gestión de Perfiles y Roles (Padres e Hijos)
+## 2. Gestión de Perfiles, Selector Rápido y PIN Parental
 
-### ¿Qué diferencias existen entre el rol de Adulto y el rol de Hijo?
-* **Rol Adulto / Padre:** Tiene control administrativo completo. Puede crear acuerdos, definir tareas y recompensas, registrar puntos de esfuerzo, ajustar las reglas de la barra, gestionar perfiles familiares y exportar copias de seguridad.
-* **Rol Hijo:** Entorno protegido y adaptado. El niño únicamente visualiza su propia barra, sus tareas asignadas, su mascota virtual, su saldo de recompensas acumulado y el catálogo familiar de premios. No tiene acceso a la configuración ni a las opciones destructivas.
+### ¿Cómo funciona el PIN de control parental?
+* **Bloqueo de seguridad de 4 dígitos:** Impide que los niños cambien al perfil de adulto o alteren la configuración familiar y el saldo de puntos.
+* **Teclado numérico táctil:** Interfaz accesible (`PinModal`) con vibración micro-háptica y animación de sacudida si el PIN introducido no coincide.
+* **Gestión desde Ajustes:** El adulto puede cambiar el PIN en cualquier momento desde la sección «Seguridad y Control Parental».
 
-### ¿Cómo se añade un nuevo hijo a la familia?
-* **Acceso desde el panel del adulto:** Entra en la sección «Mi familia» del menú lateral o inferior.
-* **Formulario de alta:** Introduce el nombre, la edad, el avatar emoji preferido y la meta u objetivo acordado.
-* **Sincronización automática:** El perfil queda inmediatamente habilitado para iniciar sesión desde la pantalla de bienvenida.
-
-### ¿Cómo cerrar sesión o cambiar de perfil en el mismo teléfono o tablet?
-* **Botón de salida:** En la esquina inferior del menú lateral, pulsa el icono de desconexión junto al nombre del perfil activo.
-* **Pantalla de bienvenida:** Selecciona o introduce el nombre del miembro que va a utilizar la aplicación a continuación.
+### ¿Cómo cambiar rápidamente entre miembros de la familia?
+* **Selector en el menú lateral:** Pulsa sobre tu nombre de usuario en la barra lateral para desplegar la lista de miembros de la familia.
+* **Cambio ágil a hijos:** Al pulsar sobre un hijo se cambia de inmediato a su espacio personalizado.
+* **Acceso restringido a adultos:** Al intentar cambiar a un perfil de adulto se solicita obligatoriamente el PIN parental.
 
 ---
 
 ## 3. Rutinas, Tareas y Hábitos Diarios
 
 ### ¿Cómo se crean tareas y rutinas acordadas?
-* **Desde la sección «Rutinas y tareas»:** Disponible exclusivamente para adultos.
+* **Desde la sección «Rutinas y tareas»:** Disponible para perfiles de adulto.
 * **Estructura del acuerdo:**
   * *Título claro:* Describe la acción observable (ej. «Preparar la mochila»).
-  * *Puntos asignados:* Valor en puntos concedidos al completarse (de 1 a 100).
-  * *Señal o momento:* El disparador que indica cuándo realizar la tarea (ej. «Antes de cenar»).
-  * *Primer paso observable:* El paso sencillo para vencer la resistencia inicial (ej. «Abrir la agenda»).
-  * *Frecuencia:* Puede ser «Diaria» (se renueva cada jornada) o «Puntual» (se realiza una única vez).
-  * *Aprobación automática:* Si está activa, los puntos se conceden de inmediato al marcar la tarea; si no, requiere revisión parental.
+  * *Puntos asignados:* Valor concedido al completarse (de 1 a 100).
+  * *Señal o momento:* Cuándo realizar la tarea (ej. «Antes de cenar»).
+  * *Primer paso observable:* Acción sencilla para iniciar (ej. «Abrir la agenda»).
+  * *Frecuencia:* «Diaria» o «Puntual».
+  * *Aprobación automática:* Concesión inmediata o mediante revisión parental.
 
-### ¿Cómo marcan los niños y los padres las tareas completadas?
-* **Vista del niño:** En su panel de rutinas, cada niño ve solo sus tareas asignadas y pulsa «Marcar hecha» para registrar su esfuerzo del día.
-* **Vista del padre:** Si una tarea está asignada a varios hijos, el padre visualiza el estado individual de cada uno de ellos y puede validar la tarea para el hijo correspondiente de forma independiente.
-
----
-
-## 4. La Barra de Progreso y Reconocimiento de Esfuerzo
-
-### ¿Cómo funciona la barra de progreso de 0 a 100?
-* **Punto de partida neutral:** La barra comienza en 50 puntos.
-* **Zona acordada (mínimo esperado):** Por defecto en 60 puntos. Representa el cumplimiento de los acuerdos básicos de convivencia.
-* **Zona meta (excelencia y celebración):** Por defecto en 85 puntos. Refleja un compromiso constante y autonomía sobresaliente.
-* **Reconocimiento con sentido educativo:** La app fomenta el refuerzo positivo mediante retroalimentación constructiva sobre el esfuerzo, más allá de la mera cifra numérica.
-
-### ¿Qué diferencia hay entre los puntos de la barra y el saldo de recompensas?
-* **Puntos de la barra (Progreso global):** Reflejan la constancia reciente (entre 0 y 100).
-* **Saldo de recompensas (Puntos canjeables):** Acumulación de puntos obtenidos por esfuerzo para canjear por premios acordados.
-* **Protección ante deslices:** Si se configuran ajustes negativos en la barra por un comportamiento a mejorar, estos restan posición en la barra pero jamás descuentan el saldo de premios ya ganado por el niño.
+### ¿Qué es el Asistente de Rutinas en pantalla completa?
+* **Modo enfoque guiado:** Permite a los niños recorrer sus hábitos del día paso a paso con temporizador integrado y retroalimentación háptica.
+* **Celebración con física de confeti:** Al completar la última tarea de la rutina, se lanza un efecto de confeti 60 FPS en Canvas 2D con sonido triunfal 8-bits.
 
 ---
 
-## 5. Mascota Virtual 8-Bits y Gamificación
+## 4. Notificaciones Accionables y Atajos del Sistema
 
-### ¿Cómo adopta su mascota virtual cada hijo?
-* **Sección «Mascota 8-Bits»:** Al acceder por primera vez con el perfil del niño, puede elegir la especie (🦊 Zorro, 🐼 Panda, 🐉 Dragón, 🐱 Gato o 🦉 Búho) y darle un nombre personalizado.
-* **Fase inicial de huevo:** La mascota nace en un huevo pixel-art que eclosionará conforme el niño sume experiencia completando rutinas.
+### ¿Qué son las notificaciones accionables de Android?
+* **Acciones directas en la cortina:** Las notificaciones de recordatorio de rutinas incluyen botones interactivos:
+  * *✓ Marcar Hecha:* Registra el paso como completado sin necesidad de abrir la aplicación.
+  * *⏰ Posponer 15m:* Programa automáticamente un nuevo recordatorio tras 15 minutos.
 
-### ¿Cómo evoluciona la mascota y qué fases existen?
-* **Evolución por Experiencia (XP):** Cada tarea completada y cada interacción otorga XP al niño y a su mascota.
-  1. *Huevo (0 - 24 XP):* Gestación del compañero.
-  2. *Bebé (25 - 74 XP):* Primeros pasos y vitalidad básica.
-  3. *Juvenil (75 - 149 XP):* Mayor energía y desbloqueo de personalización avanzada.
-  4. *Adulto (150+ XP):* Forma definitiva que celebra la consolidación de los hábitos familiares.
-
-### ¿Cómo cuidar y jugar con la mascota?
-* **Energía diaria (⚡):** Se recarga automáticamente al cumplir rutinas y tareas cotidianas.
-* **Alimentación:** Opciones de comida saludable y premios (Manzana, Galleta, Sandía, Tarta) que aumentan la saciedad y la felicidad.
-* **Tienda de accesorios:** Desbloquea complementos visuales (Gorra deportiva, Corona real, Gafas de sol, Lazos, Varita mágica) con los puntos ganados.
+### ¿Cómo funcionan los atajos de la pantalla de inicio (App Shortcuts)?
+* **Pulsación larga en el icono de la app:** En el lanzador de Android, mantén pulsado el icono de Pasos para desplegar accesos directos:
+  * *Rutinas:* Inicia de inmediato el asistente de rutinas diarias.
+  * *Mascota:* Abre directamente la consola de la mascota virtual.
 
 ---
 
-## 6. Catálogo de Recompensas y Canjes
+## 5. La Barra de Progreso y Reconocimiento de Esfuerzo
 
-### ¿Cómo funciona el catálogo de premios familiares?
-* **Acuerdos en familia:** Los premios son experiencias, privilegios o detalles consensuados entre padres e hijos (ej. «Elegir la película del viernes», «30 minutos extra de juego en familia»).
-* **Coste en puntos:** Cada recompensa tiene un coste justo y alcanzable acorde al esfuerzo acumulado.
-* **Canje:** El niño puede solicitar un premio cuando su saldo es igual o superior al coste establecido, y el padre valida la entrega.
-
----
-
-## 7. Copias de Seguridad y Respaldo Local
-
-### ¿Cómo crear una copia de seguridad de todos mis datos?
-* **Ubicación:** Accede a «Ajustes» con el perfil de adulto.
-* **Copiar backup JSON:** Copia el archivo completo con estructura JSON directamente al portapapeles para pegarlo en un bloc de notas o mensaje privado.
-* **Compartir archivo nativo:** Abre el diálogo nativo de Android (`@capacitor/share`) para guardar el archivo en Google Drive, enviarlo por correo o guardarlo en una carpeta local de descargas.
+### ¿Cómo se interpreta la barra de progreso?
+* **Escala de 0 a 100:** Cada jornada empieza en 50 (neutro).
+* **Umbral Aceptable (60):** Nivel que representa el cumplimiento de acuerdos básicos.
+* **Umbral Objetivo (85):** Nivel que reconoce un esfuerzo destacado y constancia.
 
 ---
 
-## 8. Transparencia Técnica y Diagnóstico de Salud
+## 6. Mascota Virtual 8-Bits y Sensor de Movimiento (Acelerómetro)
 
-### ¿Qué es el visor interactivo de Arquitectura?
-* **Botón «Stack Móvil Nativo»:** Ubicado en la sección de Ajustes del adulto.
-* **Canvas 2D con simulación de fuerzas:** Permite explorar visualmente los 10 módulos nucleares de la aplicación (Frontend, Motor Gráfico, Almacenamiento, Plugins de Hardware de Android y Utilidades).
-* **Diagnóstico en vivo:** Cada nodo indica su estado de salud en tiempo real, latencia de renderizado e información de integración nativa.
+### ¿Cómo evoluciona la mascota virtual?
+* **4 Etapas de crecimiento:** Huevo (0 XP) → Bebé (25 XP) → Juvenil (60 XP) → Adulto (120 XP).
+* **Energía recargable:** Cada tarea completada recarga +1 punto de energía para interactuar con la mascota.
+
+### ¿Cómo funciona el sensor físico de agitación (Shake to Play)?
+* **Detección por acelerómetro:** Al agitar físicamente el móvil con la pantalla de la mascota abierta, el sensor de movimiento detecta la sacudida y juega con la mascota automáticamente (+5 XP y +15 de felicidad), acompañado de vibración háptica.
 
 ---
 
-## 9. Ergonomía Visual, Reloj y Botones del Móvil
+## 7. Catálogo de Recompensas y Canjes
 
-### ¿Cómo evita la app tapar el reloj superior o los botones de navegación de Android?
-* **Reserva de seguridad de medio centímetro (0.5 cm):** La aplicación incorpora una barrera activa superior e inferior de al menos `0.5cm` (o el valor seguro del notch/cámara mediante `env(safe-area-inset)`), garantizando que el reloj, el nivel de batería y la barra de navegación (Atrás, Inicio, Recientes) nunca colisionen con los botones o títulos de la app.
-* **Bloqueo de desplazamiento vertical parásito (Anti-overscroll):** Bloquea los tirones y rebotes del navegador/WebView tanto al inicio como al final de la pantalla, evitando que la interfaz se desplace fuera de sus límites físicos al deslizar el dedo.
-* **Control en Ajustes:** Puedes activar o desactivar esta protección en cualquier momento desde «Ajustes» con el perfil de adulto mediante la casilla «Bloqueo vertical y márgenes seguros de 0.5 cm».
+### ¿Cómo se solicitan y canjean premios?
+* **Petición del hijo:** El niño selecciona una recompensa de su catálogo y pulsa «Pedir canje».
+* **Validación parental:** El adulto revisa la solicitud en la pestaña «Solicitudes», pudiendo aprobarla, rechazarla o marcarla como entregada.
 
+---
+
+## 8. Copias de Seguridad, Respaldo en Disco y Restauración SAF
+
+### ¿Cómo guardar y restaurar los datos familiares?
+* **Guardar en almacenamiento del dispositivo:** Guarda un snapshot `.json` en `Documents/Pasos/` mediante el botón «Guardar en almacenamiento».
+* **Compartir archivo o copiar JSON:** Comparte el archivo por WhatsApp, Drive, correo o copia el texto al portapapeles.
+* **Restauración con selector de archivos (SAF):**
+  * *Desde la bienvenida:* Pulsa «¿Ya tienes una copia de seguridad? Restaurar (.json)».
+  * *Desde Ajustes:* Pulsa «Restaurar copia (.json)» para importar cualquier copia previa al instante.
+
+---
+
+## 9. Ergonomía, Barrera de 0.5 cm y Transparencia Técnica
+
+### ¿Para qué sirve la reserva de 0.5 cm y el bloqueo vertical?
+* **Protección del reloj y la barra de navegación:** La app reserva medio centímetro físico arriba y abajo para evitar que el contenido tape la hora del móvil o los gestos del sistema.
+* **Anti-overscroll:** Bloquea rebotes parásitos para garantizar una navegación táctil sólida.
+* **Gestos predictivos Android 15:** Compatible con la navegación por gestos moderna (`enableOnBackInvokedCallback`).
+* **Grafo de Arquitectura:** En Ajustes, accede a «Mapa de Arquitectura» para inspeccionar módulos, plugins y estado de salud en tiempo real.

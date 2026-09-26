@@ -53,6 +53,7 @@ export type Family = {
     target: number;
     timezone: string;
     screenLockMargins?: boolean;
+    adultPin?: string;
   };
   children: Child[];
   tasks: Task[];

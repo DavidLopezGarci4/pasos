@@ -1,12 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Brand, Garden, Icon } from "./icon";
-import { saveStoredFamily, saveStoredUsers, setActiveUser, getStoredUsers, getStoredFamily } from "../lib/mobile-storage";
-import { hapticSuccess, hapticWarning } from "../lib/haptics";
+import {
+  saveStoredFamily,
+  saveStoredUsers,
+  setActiveUser,
+  getStoredUsers,
+  getStoredFamily,
+  importFamilyBackup,
+} from "../lib/mobile-storage";
+import { hapticSuccess, hapticWarning, hapticTap } from "../lib/haptics";
 import type { Family, Member } from "../lib/model";
 
 export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = String(event.target?.result || "");
+        const res = importFamilyBackup(content);
+        if (res.success) {
+          hapticSuccess();
+          alert("¡Copia de seguridad restaurada correctamente!");
+          onComplete();
+        } else {
+          throw new Error(res.error || "Archivo no compatible.");
+        }
+      } catch (err: unknown) {
+        hapticWarning();
+        setError(err instanceof Error ? err.message : "Error al procesar la copia.");
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,8 +51,12 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
 
       if (setup) {
         const familyName = String(form.get("familia") || "").trim();
+        const pin = String(form.get("pin") || "1234").trim();
         if (!familyName) throw new Error("Por favor introduce el nombre de la familia.");
-        if (clave.length < 10) throw new Error("La clave del adulto debe tener al menos 10 caracteres.");
+        if (clave.length < 6) throw new Error("La clave debe tener al menos 6 caracteres.");
+        if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+          throw new Error("El PIN de adulto debe ser exactamente de 4 dígitos numéricos.");
+        }
 
         const adultId = "adult-" + Date.now();
         const initialUser: Member = { id: adultId, name, role: "parent" };
@@ -34,6 +69,7 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
             target: 85,
             timezone: "Europe/Madrid",
             screenLockMargins: true,
+            adultPin: pin,
           },
           children: [],
           tasks: [],
@@ -128,13 +164,29 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
               <input
                 name="clave"
                 type="password"
-                minLength={setup ? 10 : 6}
+                minLength={setup ? 6 : 6}
                 maxLength={128}
                 required
                 autoComplete={setup ? "new-password" : "current-password"}
               />
             </label>
-            {setup && <small>Usa al menos 10 caracteres. Los niños tendrán su propio acceso.</small>}
+            {setup && (
+              <label>
+                PIN de control parental (4 dígitos)
+                <input
+                  name="pin"
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                  minLength={4}
+                  defaultValue="1234"
+                  placeholder="1234"
+                  required
+                />
+                <small>PIN rápido para autorizar cambios y acceder a la zona de adultos.</small>
+              </label>
+            )}
 
             {error && <p role="alert" className="notice error">{error}</p>}
 
@@ -143,6 +195,28 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
               <Icon name="arrow" />
             </button>
           </form>
+
+          {/* SAF / File Picker Restore Backup */}
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--line)", textAlign: "center" }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleRestoreFile}
+              accept=".json,application/json"
+              style={{ display: "none" }}
+            />
+            <button
+              type="button"
+              className="text-button"
+              style={{ fontSize: 11, color: "var(--green)", justifyContent: "center", width: "100%" }}
+              onClick={() => {
+                hapticTap();
+                fileInputRef.current?.click();
+              }}
+            >
+              <Icon name="archive" size={14} /> ¿Ya tienes una copia de seguridad? Restaurar (.json)
+            </button>
+          </div>
 
           <p className="form-note">
             {setup
