@@ -18,7 +18,7 @@ Pasos evoluciona bajo un modelo de doble arquitectura complementaria:
 
 ## 2. Hitos y Versiones de la APK Móvil
 
-### v1.0.0 — Fundación Autónoma y Auditoría Integral (Actual)
+### v1.0.0 — Fundación Autónoma y Auditoría Integral
 * [x] **Arquitectura Base:** Setup completo Vite + React 19 + Capacitor 7.
 * [x] **Almacenamiento Offline Autónomo:** Persistencia en `localStorage` con motor de copias de seguridad JSON y compartición nativa (`@capacitor/share`).
 * [x] **Roles y Seguridad:** Entornos diferenciados para adultos y niños, con aislamiento de tareas e historial para proteger la privacidad individual.
@@ -29,15 +29,19 @@ Pasos evoluciona bajo un modelo de doble arquitectura complementaria:
 
 ---
 
-### v1.1.0 — Automatización Nativa y Notificaciones
-* [ ] **Notificaciones Locales Programadas:**
-  * Alertas matutinas (ej. 08:30) para revisar el primer paso del día.
-  * Recordatorios vespertinos (ej. 20:00) para comprobar acuerdos y rutinas antes de cenar.
-  * Uso de `@capacitor/local-notifications` con canales de prioridad configurables por el adulto.
-* [ ] **Sonidos Retro 8-Bits:**
-  * Efectos de audio retro sintetizados mediante Web Audio API al completar tareas o subir de nivel la mascota.
-* [ ] **Exportación / Importación con Selector de Archivos:**
-  * Integración con `@capacitor/filesystem` para guardar y cargar directamente archivos `.json` desde el almacenamiento del dispositivo.
+### v1.1.0 — Automatización, Identidad Visual y Ergonomía (Actual)
+* [x] **Identidad Visual Dual:**
+  * Icono estándar Android/PWA (Squircle) con emblema botánico y acentos de esfuerzo.
+  * Icono versión Verticons (tarjeta vertical adaptada a pantallas alargadas de smartphone).
+  * Selector instantáneo vía comandos npm (`npm run icon:normal` / `npm run icon:verticons`).
+* [x] **Ergonomía de Pantalla y Barrera de 0.5 cm:**
+  * Reserva de seguridad física de al menos `0.5cm` superior e inferior para proteger el reloj del móvil, el notch y los botones de navegación del sistema.
+  * Bloqueo activo de desplazamiento y rebote vertical (anti-overscroll) en WebView y gestos táctiles.
+  * Configuración de `StatusBar` sin superposición y casilla de control en Ajustes.
+* [x] **Sonidos Retro 8-Bits:**
+  * Síntesis de audio retro vía Web Audio API para toques y completado de tareas.
+* [x] **Notificaciones Locales Programadas:**
+  * Alertas matutinas y recordatorios vespertinos con `@capacitor/local-notifications`.
 
 ---
 
