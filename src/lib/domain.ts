@@ -63,6 +63,42 @@ export function advanceQuests(family: Family) {
   }
 }
 
+export function contributeToProject(family: Family, points: number, contributor: { id: string; name: string }) {
+  if (!family.projects) {
+    family.projects = [
+      {
+        id: "proj-treehouse",
+        title: "Construir la Cabaña del Árbol 8-Bits",
+        description: "Sumamos esfuerzos familiares para conseguir nuestra tarde especial de celebración.",
+        rewardTitle: "Tarde de cine y pizza casera en familia",
+        targetPoints: 50,
+        currentPoints: 0,
+        active: true,
+        contributions: [],
+        startedAt: new Date().toISOString(),
+      },
+    ];
+  }
+  const activeProject = family.projects.find((p) => p.active && !p.completedAt);
+  if (!activeProject) return;
+
+  activeProject.currentPoints = Math.min(activeProject.targetPoints, activeProject.currentPoints + points);
+  let memberContrib = activeProject.contributions.find((c) => c.memberId === contributor.id);
+  if (memberContrib) {
+    memberContrib.points += points;
+  } else {
+    activeProject.contributions.push({
+      memberId: contributor.id,
+      memberName: contributor.name,
+      points,
+    });
+  }
+
+  if (activeProject.currentPoints >= activeProject.targetPoints) {
+    activeProject.completedAt = new Date().toISOString();
+  }
+}
+
 export function addPoints(family: Family, child: Child, delta: number, title: string, actor: Member) {
   requireThat(actor.role === "parent", "Solo los padres pueden modificar los puntos.");
   requireThat(Number.isInteger(delta) && delta !== 0 && Math.abs(delta) <= 100, "El ajuste debe ser un entero entre -100 y 100, distinto de cero.");
@@ -102,6 +138,7 @@ export function reviewRequest(family: Family, id: string, status: "approved" | "
     if (status === "approved" && request.kind === "task") {
       addPoints(family, child, request.points, request.title, actor);
       advanceQuests(family);
+      contributeToProject(family, request.points, child);
       addPetEnergy(child, 1);
     }
     if (status === "approved" && request.kind === "reward") {

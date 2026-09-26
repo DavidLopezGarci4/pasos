@@ -10,6 +10,9 @@
     "sync": "npm run build && npx cap sync android",
     "build:apk": "npm run sync && node scripts/build-apk.cjs",
     "release": "npm run build:apk",
+    "icon:generate": "python scripts/generate-icons.py",
+    "icon:normal": "node scripts/switch-icon.cjs normal",
+    "icon:verticons": "node scripts/switch-icon.cjs verticons",
     "open:android": "npx cap open android"
   },
   "dependencies": {

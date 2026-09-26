@@ -486,7 +486,8 @@ export default function AppArchitectureGraph({ onClose }: { onClose?: () => void
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "12px",
+        padding: "max(0.5cm, env(safe-area-inset-top, 12px)) 12px max(0.5cm, env(safe-area-inset-bottom, 12px)) 12px",
+        overscrollBehavior: "none",
         color: "#f1f5f9",
         fontFamily: "'DM Sans', sans-serif",
       }}

@@ -21,6 +21,9 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
     pet: <><path d="M12 13c-2.5 0-5 1.5-5 3.5 0 1.5 1.5 2.5 5 2.5s5-1 5-2.5c0-2-2.5-3.5-5-3.5z"/><circle cx="7" cy="9" r="2"/><circle cx="17" cy="9" r="2"/><circle cx="10" cy="5" r="1.5"/><circle cx="14" cy="5" r="1.5"/></>,
     sword: <><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l2 2M19 13l2 2M16 16l4 4"/></>,
     help: <><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
+    tree: <><path d="M12 19v3m-4-7 4-5 4 5h-2l3 4H7l3-4z"/><circle cx="12" cy="10" r="7"/></>,
+    sound: <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>,
+    mute: <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></>,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.spark}</svg>;
 }

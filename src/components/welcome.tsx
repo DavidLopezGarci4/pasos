@@ -33,6 +33,7 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
             acceptable: 60,
             target: 85,
             timezone: "Europe/Madrid",
+            screenLockMargins: true,
           },
           children: [],
           tasks: [],

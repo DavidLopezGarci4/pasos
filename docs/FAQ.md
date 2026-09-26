@@ -123,3 +123,13 @@
 * **Botón «Stack Móvil Nativo»:** Ubicado en la sección de Ajustes del adulto.
 * **Canvas 2D con simulación de fuerzas:** Permite explorar visualmente los 10 módulos nucleares de la aplicación (Frontend, Motor Gráfico, Almacenamiento, Plugins de Hardware de Android y Utilidades).
 * **Diagnóstico en vivo:** Cada nodo indica su estado de salud en tiempo real, latencia de renderizado e información de integración nativa.
+
+---
+
+## 9. Ergonomía Visual, Reloj y Botones del Móvil
+
+### ¿Cómo evita la app tapar el reloj superior o los botones de navegación de Android?
+* **Reserva de seguridad de medio centímetro (0.5 cm):** La aplicación incorpora una barrera activa superior e inferior de al menos `0.5cm` (o el valor seguro del notch/cámara mediante `env(safe-area-inset)`), garantizando que el reloj, el nivel de batería y la barra de navegación (Atrás, Inicio, Recientes) nunca colisionen con los botones o títulos de la app.
+* **Bloqueo de desplazamiento vertical parásito (Anti-overscroll):** Bloquea los tirones y rebotes del navegador/WebView tanto al inicio como al final de la pantalla, evitando que la interfaz se desplace fuera de sus límites físicos al deslizar el dedo.
+* **Control en Ajustes:** Puedes activar o desactivar esta protección en cualquier momento desde «Ajustes» con el perfil de adulto mediante la casilla «Bloqueo vertical y márgenes seguros de 0.5 cm».
+

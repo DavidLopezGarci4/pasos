@@ -28,10 +28,14 @@ import { Brand, Garden, Icon } from "./icon";
 import { PixelPet } from "./pixel-pet";
 import { PetView } from "./pet-modal";
 import { FAQView } from "./faq-view";
+import { RoutineRunner } from "./routine-runner";
+import { FamilyProjectView } from "./family-project-view";
+import { playTap, playTaskDone, isSoundMuted, toggleSoundMuted } from "../lib/sound";
+import { setScreenLockSetting } from "../lib/screen-lock";
 
 const AppArchitectureGraph = lazy(() => import("./AppArchitectureGraph"));
 
-type View = "home" | "tasks" | "rewards" | "requests" | "family" | "pet" | "advice" | "faq" | "settings";
+type View = "home" | "tasks" | "rewards" | "requests" | "family" | "pet" | "project" | "advice" | "faq" | "settings";
 
 export function Portal({
   snapshot,
@@ -42,6 +46,8 @@ export function Portal({
 }) {
   const [view, setView] = useState<View>("home");
   const [showTechStack, setShowTechStack] = useState(false);
+  const [activeRoutineChild, setActiveRoutineChild] = useState<Child | null>(null);
+  const [soundMuted, setSoundMuted] = useState(isSoundMuted());
 
   const { family, user, members, today } = snapshot;
   const parent = user.role === "parent";
@@ -198,6 +204,7 @@ export function Portal({
       submitTask(family, taskId, user, parent, childId);
       saveStoredFamily({ ...family });
       hapticSuccess();
+      playTaskDone();
       onUpdate();
     } catch (err: unknown) {
       hapticWarning();
@@ -263,16 +270,28 @@ export function Portal({
             className={view === "pet" ? "active" : ""}
             onClick={() => {
               hapticTap();
+              playTap();
               setView("pet");
             }}
           >
             <Icon name="pet" /> Mascota 8-Bits
+          </button>
+          <button
+            className={view === "project" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              playTap();
+              setView("project");
+            }}
+          >
+            <Icon name="tree" /> Proyecto Familiar
           </button>
           {parent && (
             <button
               className={view === "family" ? "active" : ""}
               onClick={() => {
                 hapticTap();
+                playTap();
                 setView("family");
               }}
             >
@@ -283,6 +302,7 @@ export function Portal({
             className={view === "advice" ? "active" : ""}
             onClick={() => {
               hapticTap();
+              playTap();
               setView("advice");
             }}
           >
@@ -292,6 +312,7 @@ export function Portal({
             className={view === "faq" ? "active" : ""}
             onClick={() => {
               hapticTap();
+              playTap();
               setView("faq");
             }}
           >
@@ -302,6 +323,7 @@ export function Portal({
               className={view === "settings" ? "active" : ""}
               onClick={() => {
                 hapticTap();
+                playTap();
                 setView("settings");
               }}
             >
@@ -328,7 +350,32 @@ export function Portal({
           <span>
             <strong>{family.name}</strong> · {dateLabel(today)}
           </span>
-          <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => {
+                const muted = toggleSoundMuted();
+                setSoundMuted(muted);
+                hapticTap();
+              }}
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid var(--edge)",
+                borderRadius: 8,
+                padding: "4px 8px",
+                color: "var(--ink)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 11,
+                fontWeight: 600,
+              }}
+              title={soundMuted ? "Activar audio retro" : "Silenciar audio"}
+            >
+              <Icon name={soundMuted ? "mute" : "sound"} size={14} />
+              <span>{soundMuted ? "Mute" : "8-Bit"}</span>
+            </button>
             <span className="private-tag">
               <i /> APK Móvil 100% Offline
             </span>
@@ -349,6 +396,61 @@ export function Portal({
               </div>
 
               {/* Children Overview Cards */}
+              {visibleChildren.length > 0 && (
+                <div
+                  style={{
+                    marginBottom: 20,
+                    padding: "14px 18px",
+                    borderRadius: 14,
+                    background: "linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(56, 189, 248, 0.08))",
+                    border: "1px solid rgba(74, 222, 128, 0.25)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: "rgba(74, 222, 128, 0.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 20,
+                        flexShrink: 0,
+                      }}
+                    >
+                      ⏱️
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>Modo Rutina Guiada</span>
+                        <span className="pill green" style={{ fontSize: 10, padding: "1px 6px" }}>8-Bit</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+                        Una tarea a la vez con temporizador visual chiptune
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="button primary"
+                    style={{ whiteSpace: "nowrap", padding: "8px 14px", fontSize: 13 }}
+                    onClick={() => {
+                      hapticSuccess();
+                      playTap();
+                      setActiveRoutineChild(visibleChildren[0]);
+                    }}
+                  >
+                    Comenzar ▶
+                  </button>
+                </div>
+              )}
               <div className="children-grid">
                 {visibleChildren.map((child) => {
                   const status = statusFor(child.score, family.settings);
@@ -470,12 +572,26 @@ export function Portal({
           {/* TASKS VIEW */}
           {view === "tasks" && (
             <div>
-              <div className="page-heading">
+              <div className="page-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
                 <div>
                   <div className="date-label">HÁBITOS DIARIOS Y RETOS</div>
                   <h1>Rutinas y tareas</h1>
                   <p>Pequeños compromisos que construyen autonomía día a día.</p>
                 </div>
+                {visibleChildren.length > 0 && (
+                  <button
+                    type="button"
+                    className="button secondary"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                    onClick={() => {
+                      hapticTap();
+                      playTap();
+                      setActiveRoutineChild(visibleChildren[0]);
+                    }}
+                  >
+                    <span>⏱️ Iniciar Rutina Guiada</span>
+                  </button>
+                )}
               </div>
 
               <div className="panel">
@@ -650,6 +766,11 @@ export function Portal({
           {/* PET VIEW */}
           {view === "pet" && <PetView snapshot={snapshot} />}
 
+          {/* FAMILY COOPERATIVE PROJECT VIEW */}
+          {view === "project" && (
+            <FamilyProjectView family={family} user={user} onUpdate={onUpdate} />
+          )}
+
           {/* FAMILY PROFILES VIEW */}
           {view === "family" && parent && (
             <div>
@@ -776,6 +897,8 @@ export function Portal({
                     family.settings.acceptable = Number(form.get("aceptable") || 60);
                     family.settings.target = Number(form.get("meta") || 85);
                     family.settings.negativeEnabled = form.get("negativos") === "on";
+                    family.settings.screenLockMargins = form.get("screenLockMargins") === "on";
+                    setScreenLockSetting(family.settings.screenLockMargins);
                     saveStoredFamily({ ...family });
                     hapticSuccess();
                     onUpdate();
@@ -800,6 +923,20 @@ export function Portal({
                   <label className="checkbox">
                     <input type="checkbox" name="negativos" defaultChecked={family.settings.negativeEnabled} />
                     Permitir ajustes negativos en la barra
+                  </label>
+                  <label className="checkbox" style={{ marginTop: 2, alignItems: "flex-start" }}>
+                    <input
+                      type="checkbox"
+                      name="screenLockMargins"
+                      defaultChecked={family.settings.screenLockMargins !== false}
+                      style={{ marginTop: 3 }}
+                    />
+                    <span>
+                      <strong>Bloqueo vertical y márgenes seguros de 0.5 cm</strong>
+                      <small style={{ display: "block", color: "var(--muted)", fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>
+                        Bloquea el rebote/desplazamiento vertical parásito y reserva medio centímetro por encima (reloj del móvil) y por debajo (botones de navegación).
+                      </small>
+                    </span>
                   </label>
                   <button type="submit" className="button primary">
                     Guardar reglas
@@ -911,6 +1048,19 @@ export function Portal({
         <Suspense fallback={null}>
           <AppArchitectureGraph onClose={() => setShowTechStack(false)} />
         </Suspense>
+      )}
+
+      {activeRoutineChild && (
+        <RoutineRunner
+          family={family}
+          child={activeRoutineChild}
+          today={today}
+          onCompleteTask={(taskId, childId) => handleCompleteTask(taskId, childId)}
+          onClose={() => {
+            setActiveRoutineChild(null);
+            onUpdate();
+          }}
+        />
       )}
     </div>
   );

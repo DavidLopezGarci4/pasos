@@ -3,6 +3,7 @@ import { petCatalog, petStageLabels, petItemsCatalog, type Child, type Snapshot 
 import { feedPet, playPet, buyPetItem, togglePetAccessory } from "../lib/domain";
 import { saveStoredFamily } from "../lib/mobile-storage";
 import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
+import { playTap, playLevelUp, playPetFeed } from "../lib/sound";
 import { PixelPet } from "./pixel-pet";
 import { Icon } from "./icon";
 
@@ -10,6 +11,10 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
   const [activeTab, setActiveTab] = useState<"play" | "feed" | "shop">("play");
   const pet = child.pet;
   const family = snapshot.family;
+
+  const currentHour = new Date().getHours();
+  const isNight = currentHour >= 21 || currentHour < 8;
+  const petMood = isNight ? "sleepy" : "happy";
 
   const handleChoosePet = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +37,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
 
     saveStoredFamily({ ...family });
     hapticSuccess();
+    playLevelUp();
   };
 
   const handlePlay = () => {
@@ -39,6 +45,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       playPet(child);
       saveStoredFamily({ ...family });
       hapticSuccess();
+      playLevelUp();
     } catch (err: unknown) {
       hapticWarning();
       alert(err instanceof Error ? err.message : "Error al jugar con la mascota");
@@ -50,6 +57,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       feedPet(child, itemId);
       saveStoredFamily({ ...family });
       hapticSuccess();
+      playPetFeed();
     } catch (err: unknown) {
       hapticWarning();
       alert(err instanceof Error ? err.message : "Error al alimentar la mascota");
@@ -161,7 +169,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
           )}
 
           <div className="pet-character-avatar" key={happiness + fullness + energy + equippedIds.length + pet.stage}>
-            <PixelPet type={pet.type} stage={pet.stage} accessories={equippedIds} size={140} />
+            <PixelPet type={pet.type} stage={pet.stage} accessories={equippedIds} size={140} mood={petMood} />
           </div>
 
           <div className="pet-speech-bubble">
