@@ -33,6 +33,7 @@ import {
 import { Share } from "@capacitor/share";
 import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
 import { PinModal } from "./pin-modal";
+import { AboutModal } from "./about-modal";
 import { fireConfetti } from "../lib/confetti";
 import { Brand, Garden, Icon } from "./icon";
 import { PixelPet } from "./pixel-pet";
@@ -69,6 +70,7 @@ export function Portal({
     return () => window.removeEventListener("hashchange", handleHash);
   }, []);
   const [showTechStack, setShowTechStack] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
   const [activeRoutineChild, setActiveRoutineChild] = useState<Child | null>(null);
   const [soundMuted, setSoundMuted] = useState(isSoundMuted());
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -550,6 +552,30 @@ export function Portal({
             >
               <Icon name={soundMuted ? "mute" : "sound"} size={14} />
               <span>{soundMuted ? "Mute" : "8-Bit"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                hapticTap();
+                setShowAboutModal(true);
+              }}
+              style={{
+                background: "rgba(65, 104, 80, 0.09)",
+                border: "1px solid rgba(65, 104, 80, 0.22)",
+                borderRadius: 8,
+                padding: "4px 8px",
+                color: "#416850",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+              title="Acerca de y Novedades de la versión"
+            >
+              <span>v1.2.0</span>
+              <span style={{ fontSize: 9, opacity: 0.8 }}>Novedades</span>
             </button>
             <span className="private-tag">
               <i /> APK Móvil 100% Offline
@@ -1250,24 +1276,45 @@ export function Portal({
                   <p className="muted" style={{ marginBottom: 16 }}>
                     Mapa interactivo de módulos móviles, plugins nativos y diagnóstico de salud.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      hapticTap();
-                      setShowTechStack(true);
-                    }}
-                    className="button secondary full"
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 18, color: "var(--green)" }}>📱</span>
-                      <div style={{ textAlign: "left" }}>
-                        <div style={{ fontWeight: 600, color: "var(--ink)", fontSize: 13 }}>Stack Móvil Nativo</div>
-                        <div style={{ fontSize: 11, color: "var(--muted)" }}>Grafo Canvas 2D y salud en vivo</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        hapticTap();
+                        setShowAboutModal(true);
+                      }}
+                      className="button secondary full"
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 18, color: "var(--green)" }}>🌱</span>
+                        <div style={{ textAlign: "left" }}>
+                          <div style={{ fontWeight: 600, color: "var(--ink)", fontSize: 13 }}>Acerca de Pasos y Novedades</div>
+                          <div style={{ fontSize: 11, color: "var(--muted)" }}>Versión v1.2.0 · Historial de mejoras</div>
+                        </div>
                       </div>
-                    </div>
-                    <Icon name="arrow" size={16} />
-                  </button>
+                      <Icon name="arrow" size={16} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        hapticTap();
+                        setShowTechStack(true);
+                      }}
+                      className="button secondary full"
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 18, color: "var(--green)" }}>📱</span>
+                        <div style={{ textAlign: "left" }}>
+                          <div style={{ fontWeight: 600, color: "var(--ink)", fontSize: 13 }}>Stack Móvil Nativo</div>
+                          <div style={{ fontSize: 11, color: "var(--muted)" }}>Grafo Canvas 2D y salud en vivo</div>
+                        </div>
+                      </div>
+                      <Icon name="arrow" size={16} />
+                    </button>
+                  </div>
                 </section>
               </div>
             </div>
@@ -1290,6 +1337,16 @@ export function Portal({
           onClose={() => {
             setActiveRoutineChild(null);
             onUpdate();
+          }}
+        />
+      )}
+
+      {showAboutModal && (
+        <AboutModal
+          onClose={() => setShowAboutModal(false)}
+          onOpenArchitecture={() => {
+            setShowAboutModal(false);
+            setShowTechStack(true);
           }}
         />
       )}

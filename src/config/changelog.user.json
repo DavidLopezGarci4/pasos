@@ -1,0 +1,54 @@
+{
+  "currentVersion": "1.2.0",
+  "buildNumber": 10200,
+  "lastUpdated": "2026-09-26",
+  "appName": "Pasos · Crecemos en familia",
+  "appDescription": "Acompaña hábitos positivos, fomenta la autonomía y celebra el esfuerzo diario en familia con privacidad total.",
+  "privacyPolicy": "Tus datos nunca salen de tu dispositivo: almacenamiento 100% local, autónomo y privado sin telemetría ni nube.",
+  "versions": [
+    {
+      "version": "1.2.0",
+      "build": 10200,
+      "date": "2026-09-26",
+      "title": "Control Parental, Notificaciones Accionables y Sensor de Movimiento",
+      "highlights": [
+        "🔒 PIN de Control Parental: Teclado táctil de 4 dígitos para proteger el perfil de adulto y asegurar que los niños no cambien acuerdos ni ajustes.",
+        "📥 Restaurar Copias de Seguridad: Recupera al instante todos tus datos, puntos y mascotas desde cualquier archivo JSON con el selector nativo del móvil.",
+        "⚡ Acciones Directas en Notificaciones: Marca tareas como hechas o posponlas 15 minutos directamente desde la cortina de Android sin abrir la app.",
+        "🎮 Sensor de Movimiento (Agitar para Jugar): Agita físicamente tu smartphone para interactuar y jugar con tu mascota virtual pixel-art.",
+        "🎉 Celebraciones de Confeti: Lluvia de confeti a 60 FPS con física interactiva y vibración al terminar las rutinas diarias."
+      ]
+    },
+    {
+      "version": "1.1.1",
+      "build": 10101,
+      "date": "2026-09-26",
+      "title": "Ajuste Visual del Emblema de la App",
+      "highlights": [
+        "🎨 Icono Adaptativo Perfeccionado: Calibración de la escala visual del icono botánico para lucir nítido, proporcional y centrado en todos los lanzadores Android."
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "build": 10100,
+      "date": "2026-09-26",
+      "title": "Ergonomía de Pantalla, Margen Seguro y Sonidos Retro",
+      "highlights": [
+        "🛡️ Margen de 0.5 cm Antideslizamiento: Bloqueo de rebotes verticales parásitos y reserva física de medio centímetro para no tapar el reloj ni los botones de navegación.",
+        "🖼️ Iconos Normal y Verticons: Selector de estilo de icono estándar o tarjeta vertical adaptada a teléfonos alargados modernos.",
+        "🔊 Audio Retro 8-Bits: Efectos de sonido retro sintetizados para celebrar toques y hábitos completados."
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "build": 10000,
+      "date": "2026-09-01",
+      "title": "Fundación Autónoma y Mascota Virtual",
+      "highlights": [
+        "🏡 Espacio Familiar 100% Privado: Hábitos, acuerdos y barra de esfuerzo compartida que funcionan sin conexión a internet ni registros externos.",
+        "🐣 Mascota Virtual 8-Bits: Adopta una mascota que crece y evoluciona según la constancia en tus tareas diarias.",
+        "🎁 Catálogo de Recompensas: Canjea puntos de esfuerzo por premios acordados en familia con aprobación parental."
+      ]
+    }
+  ]
+}
