@@ -9,10 +9,11 @@
     "preview": "vite preview",
     "sync": "npm run build && npx cap sync android",
     "build:apk": "npm run sync && node scripts/build-apk.cjs",
+    "build:verticons": "npm run sync && node scripts/build-apk.cjs verticons",
+    "build:standard": "npm run sync && node scripts/build-apk.cjs standard",
     "release": "npm run build:apk",
-    "icon:generate": "python scripts/generate-icons.py",
-    "icon:normal": "node scripts/switch-icon.cjs normal",
-    "icon:verticons": "node scripts/switch-icon.cjs verticons",
+    "icon:verticons": "powershell -ExecutionPolicy Bypass -File .\\scripts\\generate-verticon-icons.ps1",
+    "icon:standard": "powershell -ExecutionPolicy Bypass -File .\\scripts\\generate-standard-icons.ps1",
     "open:android": "npx cap open android"
   },
   "dependencies": {
