@@ -1,0 +1,788 @@
+import React, { useState, lazy, Suspense } from "react";
+import type { Snapshot, Child, Task, Reward, Family, Member } from "../lib/model";
+import {
+  advice,
+  dateLabel,
+  dayKey,
+  statusFor,
+  taskChildIds,
+  taskRequest,
+  taskStreak,
+  taskLibrary,
+} from "../lib/model";
+import {
+  addPoints,
+  submitTask,
+  reviewRequest,
+  editTask,
+  deleteTask,
+  editReward,
+  deleteReward,
+  resetChild,
+  deleteChild,
+  publicFamily,
+} from "../lib/domain";
+import { saveStoredFamily, setActiveUser, exportFamilyBackup, importFamilyBackup } from "../lib/mobile-storage";
+import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
+import { Brand, Garden, Icon } from "./icon";
+import { PixelPet } from "./pixel-pet";
+import { PetView } from "./pet-modal";
+
+const AppArchitectureGraph = lazy(() => import("./AppArchitectureGraph"));
+
+type View = "home" | "tasks" | "rewards" | "requests" | "family" | "pet" | "advice" | "settings";
+
+export function Portal({
+  snapshot,
+  onUpdate,
+}: {
+  snapshot: Snapshot;
+  onUpdate: () => void;
+}) {
+  const [view, setView] = useState<View>("home");
+  const [showTechStack, setShowTechStack] = useState(false);
+
+  const { family, user, members, today } = snapshot;
+  const parent = user.role === "parent";
+
+  const handleLogout = () => {
+    hapticTap();
+    setActiveUser(null);
+    onUpdate();
+  };
+
+  const handleAddPoints = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const childId = String(form.get("childId") || "");
+    const delta = Number(form.get("delta") || 0);
+    const title = String(form.get("motivo") || "").trim();
+
+    try {
+      const child = family.children.find((c) => c.id === childId);
+      if (!child) throw new Error("Perfil no encontrado");
+      addPoints(family, child, delta, title, user);
+      saveStoredFamily({ ...family });
+      hapticSuccess();
+      onUpdate();
+      (e.target as HTMLFormElement).reset();
+    } catch (err: unknown) {
+      hapticWarning();
+      alert(err instanceof Error ? err.message : "Error al registrar puntos");
+    }
+  };
+
+  const handleAddChild = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const name = String(form.get("nombre") || "").trim();
+    const age = Number(form.get("edad") || 8);
+    const avatar = String(form.get("avatar") || "🦊");
+    const goal = String(form.get("meta") || "Crecer con autonomía").trim();
+
+    const newChild: Child = {
+      id: "child-" + Date.now(),
+      name,
+      age,
+      avatar,
+      score: 50,
+      balance: 0,
+      goal,
+      level: 1,
+      xp: 0,
+      xpToNext: 50,
+      pet: null,
+    };
+
+    family.children.push(newChild);
+    saveStoredFamily({ ...family });
+    hapticSuccess();
+    onUpdate();
+    (e.target as HTMLFormElement).reset();
+  };
+
+  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const title = String(form.get("titulo") || "").trim();
+    const points = Number(form.get("puntos") || 5);
+    const frequency = String(form.get("frecuencia") || "daily") as "daily" | "once";
+    const cue = String(form.get("senal") || "Cuando llegue el momento acordado").trim();
+    const firstStep = String(form.get("primerPaso") || "Empezar").trim();
+    const autoApprove = form.get("autoAprobar") === "on";
+    const selectedChildIds = form.getAll("childIds").map(String);
+
+    const childIds = selectedChildIds.length ? selectedChildIds : family.children.map((c) => c.id);
+
+    const newTask: Task = {
+      id: "task-" + Date.now(),
+      title,
+      points,
+      frequency,
+      cue,
+      firstStep,
+      autoApprove,
+      childIds,
+      childId: childIds[0] || "",
+      active: true,
+      checklist: [],
+    };
+
+    family.tasks.push(newTask);
+    saveStoredFamily({ ...family });
+    hapticSuccess();
+    onUpdate();
+    (e.target as HTMLFormElement).reset();
+  };
+
+  const handleAddReward = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const title = String(form.get("titulo") || "").trim();
+    const description = String(form.get("descripcion") || "").trim();
+    const cost = Number(form.get("puntos") || 10);
+    const emoji = String(form.get("emoji") || "🎁").trim();
+
+    const newReward: Reward = {
+      id: "reward-" + Date.now(),
+      title,
+      description,
+      cost,
+      emoji,
+      active: true,
+    };
+
+    family.rewards.push(newReward);
+    saveStoredFamily({ ...family });
+    hapticSuccess();
+    onUpdate();
+    (e.target as HTMLFormElement).reset();
+  };
+
+  const handleCompleteTask = (taskId: string, childId?: string) => {
+    try {
+      submitTask(family, taskId, user, parent, childId);
+      saveStoredFamily({ ...family });
+      hapticSuccess();
+      onUpdate();
+    } catch (err: unknown) {
+      hapticWarning();
+      alert(err instanceof Error ? err.message : "Error al registrar tarea");
+    }
+  };
+
+  const handleReviewRequest = (requestId: string, status: "approved" | "rejected" | "delivered", note = "") => {
+    try {
+      reviewRequest(family, requestId, status, note, user);
+      saveStoredFamily({ ...family });
+      hapticSuccess();
+      onUpdate();
+    } catch (err: unknown) {
+      hapticWarning();
+      alert(err instanceof Error ? err.message : "Error al revisar solicitud");
+    }
+  };
+
+  return (
+    <div className="app-shell">
+      {/* Sidebar / Bottom Navigation */}
+      <aside className="sidebar">
+        <Brand />
+        <div className="family-label">
+          <div className="family-monogram">{family.name[0]?.toUpperCase() || "P"}</div>
+          <span>
+            {family.name}
+            <small>Portal Familiar Móvil</small>
+          </span>
+        </div>
+
+        <span className="nav-eyebrow">NAVEGACIÓN</span>
+        <nav>
+          <button
+            className={view === "home" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("home");
+            }}
+          >
+            <Icon name="home" /> Panel principal
+          </button>
+          <button
+            className={view === "tasks" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("tasks");
+            }}
+          >
+            <Icon name="tasks" /> Rutinas y tareas
+          </button>
+          <button
+            className={view === "rewards" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("rewards");
+            }}
+          >
+            <Icon name="gift" /> Recompensas
+          </button>
+          <button
+            className={view === "pet" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("pet");
+            }}
+          >
+            <Icon name="pet" /> Mascota 8-Bits
+          </button>
+          {parent && (
+            <button
+              className={view === "family" ? "active" : ""}
+              onClick={() => {
+                hapticTap();
+                setView("family");
+              }}
+            >
+              <Icon name="family" /> Mi familia
+            </button>
+          )}
+          <button
+            className={view === "advice" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("advice");
+            }}
+          >
+            <Icon name="book" /> Pautas educativas
+          </button>
+          {parent && (
+            <button
+              className={view === "settings" ? "active" : ""}
+              onClick={() => {
+                hapticTap();
+                setView("settings");
+              }}
+            >
+              <Icon name="settings" /> Ajustes
+            </button>
+          )}
+        </nav>
+
+        <div className="sidebar-user">
+          <div className="mini-avatar">{user.name[0]?.toUpperCase()}</div>
+          <span>
+            <strong>{user.name}</strong>
+            <small>{parent ? "Adulto / Padre" : "Hijo"}</small>
+          </span>
+          <button onClick={handleLogout} title="Cerrar sesión">
+            <Icon name="logout" size={16} />
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="main-shell">
+        <header className="topbar">
+          <span>
+            <strong>{family.name}</strong> · {dateLabel(today)}
+          </span>
+          <div>
+            <span className="private-tag">
+              <i /> APK Móvil 100% Offline
+            </span>
+          </div>
+        </header>
+
+        <div className="main-content">
+          {/* HOME VIEW */}
+          {view === "home" && (
+            <div>
+              <div className="page-heading">
+                <div>
+                  <div className="date-label">{dateLabel(today)}</div>
+                  <h1>¡Hola, {user.name}!</h1>
+                  <p>Acompañamos hábitos con paciencia y acuerdos claros.</p>
+                </div>
+                <div className="page-flower">🌱</div>
+              </div>
+
+              {/* Children Overview Cards */}
+              <div className="children-grid">
+                {family.children.map((child) => {
+                  const status = statusFor(child.score, family.settings);
+                  return (
+                    <div className="child-card" key={child.id}>
+                      <div className="child-card-top">
+                        <div className="avatar">{child.avatar}</div>
+                        <div>
+                          <h3>{child.name}</h3>
+                          <span>
+                            {child.age} años · Nivel {child.level} ({child.xp} XP)
+                          </span>
+                        </div>
+                        {child.pet && (
+                          <div style={{ marginLeft: "auto" }}>
+                            <PixelPet type={child.pet.type} stage={child.pet.stage} accessories={child.pet.equippedAccessories} size={48} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="goal">
+                        <span>META ACTUAL</span>
+                        {child.goal}
+                      </div>
+
+                      <div className="progress-heading">
+                        <span className={`status ${status.tone}`}>
+                          <i /> {status.label}
+                        </span>
+                        <span>
+                          <strong>{child.score}</strong> <small>/ 100</small>
+                        </span>
+                      </div>
+
+                      <div className="progress-track" style={{ "--acceptable": `${family.settings.acceptable}%`, "--target": `${family.settings.target}%` } as React.CSSProperties}>
+                        <div className="progress-shade" style={{ width: `${100 - child.score}%` }} />
+                        <div className="progress-marker" style={{ left: `${child.score}%` }} />
+                      </div>
+
+                      <div className="progress-labels">
+                        <span>0 Inicio</span>
+                        <span>Acuerdo: {family.settings.acceptable}</span>
+                        <span>Meta: {family.settings.target}</span>
+                        <span>100</span>
+                      </div>
+
+                      <div className="child-bottom">
+                        <span>
+                          <Icon name="gift" size={16} /> Saldo premios: <strong>{child.balance} pts</strong>
+                        </span>
+                        {child.pet && (
+                          <span>
+                            ⚡ Energía: <strong>{child.pet.energy ?? 3}</strong>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Quick Actions for Parents */}
+              {parent && family.children.length > 0 && (
+                <div className="dashboard-bottom">
+                  <section className="panel">
+                    <span className="eyebrow">REGISTRAR ESFUERZO</span>
+                    <h3>Ajustar puntos de la barra</h3>
+                    <form onSubmit={handleAddPoints} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      <div className="form-grid">
+                        <label>
+                          Para quién
+                          <select name="childId" required>
+                            {family.children.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label>
+                          Puntos (-100 a +100)
+                          <input name="delta" type="number" min="-100" max="100" defaultValue="5" required />
+                        </label>
+                      </div>
+                      <label>
+                        Motivo del ajuste
+                        <input name="motivo" placeholder="Ej: Recoger la habitación sin recordar" required maxLength={120} />
+                      </label>
+                      <button type="submit" className="button primary">
+                        Guardar ajuste
+                      </button>
+                    </form>
+                  </section>
+
+                  <section className="panel">
+                    <span className="eyebrow">ÚLTIMOS MOVIMIENTOS</span>
+                    <h3>Historial reciente</h3>
+                    {family.entries.slice(0, 5).map((e) => (
+                      <div className="history-row" key={e.id}>
+                        <div className={`history-symbol ${e.delta >= 0 ? "green" : "coral"}`}>
+                          {e.delta >= 0 ? "+" : "−"}
+                        </div>
+                        <div>
+                          <strong>{e.title}</strong>
+                          <small>Por {e.by}</small>
+                        </div>
+                        <div className={`entry-points ${e.delta >= 0 ? "" : "negative"}`}>
+                          {e.delta >= 0 ? `+${e.delta}` : e.delta} pts
+                        </div>
+                      </div>
+                    ))}
+                    {family.entries.length === 0 && <p className="muted">Aún no hay movimientos registrados.</p>}
+                  </section>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TASKS VIEW */}
+          {view === "tasks" && (
+            <div>
+              <div className="page-heading">
+                <div>
+                  <div className="date-label">HÁBITOS DIARIOS Y RETOS</div>
+                  <h1>Rutinas y tareas</h1>
+                  <p>Pequeños compromisos que construyen autonomía día a día.</p>
+                </div>
+              </div>
+
+              <div className="panel">
+                <h3>Tareas acordadas</h3>
+                {family.tasks.map((t) => {
+                  const req = taskRequest(family, t, today);
+                  const isDone = !!req && req.status === "approved";
+                  return (
+                    <div className="task-row" key={t.id}>
+                      <div className={`task-check ${isDone ? "done" : ""}`}>
+                        {isDone ? "✓" : "○"}
+                      </div>
+                      <div className="task-copy">
+                        <h4>{t.title}</h4>
+                        <p>
+                          {t.cue} → {t.firstStep} ({t.frequency === "daily" ? "Diaria" : "Puntual"})
+                        </p>
+                      </div>
+                      <div className="points">+{t.points} pts</div>
+                      <div className="row-actions">
+                        {!isDone && (
+                          <button
+                            type="button"
+                            className="button secondary small"
+                            onClick={() => handleCompleteTask(t.id)}
+                          >
+                            Marcar hecha
+                          </button>
+                        )}
+                        {isDone && <span className="pill green">Hecha hoy</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {family.tasks.length === 0 && <p className="muted">No hay tareas creadas todavía.</p>}
+              </div>
+
+              {parent && (
+                <section className="panel" style={{ marginTop: 22 }}>
+                  <span className="eyebrow">NUEVO ACUERDO</span>
+                  <h3>Añadir tarea o rutina</h3>
+                  <form onSubmit={handleAddTask} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className="form-grid">
+                      <label>
+                        Título
+                        <input name="titulo" placeholder="Ej: Poner la mesa" required maxLength={120} />
+                      </label>
+                      <label>
+                        Puntos
+                        <input name="puntos" type="number" min="1" max="100" defaultValue="5" required />
+                      </label>
+                    </div>
+                    <div className="form-grid">
+                      <label>
+                        Señal o momento
+                        <input name="senal" placeholder="Ej: Antes de cenar" defaultValue="Al llegar a casa" required />
+                      </label>
+                      <label>
+                        Primer paso pequeño
+                        <input name="primerPaso" placeholder="Ej: Mirar la agenda" defaultValue="Empezar por lo fácil" required />
+                      </label>
+                    </div>
+                    <label className="checkbox">
+                      <input type="checkbox" name="autoAprobar" defaultChecked />
+                      Aprobar y conceder puntos automáticamente al marcarse
+                    </label>
+                    <button type="submit" className="button primary">
+                      Crear tarea
+                    </button>
+                  </form>
+                </section>
+              )}
+            </div>
+          )}
+
+          {/* REWARDS VIEW */}
+          {view === "rewards" && (
+            <div>
+              <div className="page-heading">
+                <div>
+                  <div className="date-label">CATÁLOGO FAMILIAR</div>
+                  <h1>Recompensas</h1>
+                  <p>Premios acordados para celebrar el esfuerzo acumulado.</p>
+                </div>
+              </div>
+
+              <div className="rewards-grid">
+                {family.rewards.map((r) => (
+                  <div className="reward-card" key={r.id}>
+                    <div className="reward-art">
+                      <span>{r.emoji}</span>
+                      <div className="reward-cost">{r.cost} pts</div>
+                    </div>
+                    <div className="reward-copy">
+                      <h3>{r.title}</h3>
+                      <p>{r.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {parent && (
+                <section className="panel" style={{ marginTop: 22 }}>
+                  <span className="eyebrow">NUEVO PREMIO</span>
+                  <h3>Añadir recompensa al catálogo</h3>
+                  <form onSubmit={handleAddReward} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className="form-grid">
+                      <label>
+                        Título
+                        <input name="titulo" placeholder="Ej: Elegir película el viernes" required maxLength={120} />
+                      </label>
+                      <label>
+                        Coste en puntos
+                        <input name="puntos" type="number" min="1" max="1000" defaultValue="20" required />
+                      </label>
+                    </div>
+                    <div className="form-grid">
+                      <label>
+                        Emoji representativo
+                        <input name="emoji" defaultValue="🎬" maxLength={4} required />
+                      </label>
+                      <label>
+                        Descripción
+                        <input name="descripcion" placeholder="Ej: Elegir qué vemos en familia el viernes por la noche" required />
+                      </label>
+                    </div>
+                    <button type="submit" className="button primary">
+                      Añadir recompensa
+                    </button>
+                  </form>
+                </section>
+              )}
+            </div>
+          )}
+
+          {/* PET VIEW */}
+          {view === "pet" && <PetView snapshot={snapshot} />}
+
+          {/* FAMILY PROFILES VIEW */}
+          {view === "family" && parent && (
+            <div>
+              <div className="page-heading">
+                <div>
+                  <div className="date-label">EL EQUIPO FAMILIAR</div>
+                  <h1>Mi familia</h1>
+                  <p>Administra perfiles de hijos y progenitores.</p>
+                </div>
+              </div>
+
+              <div className="children-grid">
+                {family.children.map((c) => (
+                  <div className="child-card" key={c.id}>
+                    <div className="child-card-top">
+                      <div className="avatar">{c.avatar}</div>
+                      <div>
+                        <h3>{c.name}</h3>
+                        <span>{c.age} años · Nivel {c.level}</span>
+                      </div>
+                    </div>
+                    <div className="goal">
+                      <span>OBJETIVO</span>
+                      {c.goal}
+                    </div>
+                    <div className="child-bottom">
+                      <span>Puntuación: <strong>{c.score}/100</strong></span>
+                      <span>Saldo: <strong>{c.balance} pts</strong></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <section className="panel" style={{ marginTop: 22 }}>
+                <span className="eyebrow">NUEVO MIEMBRO</span>
+                <h3>Añadir hijo o hija</h3>
+                <form onSubmit={handleAddChild} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div className="form-grid">
+                    <label>
+                      Nombre
+                      <input name="nombre" placeholder="Ej: Lucas" required maxLength={40} />
+                    </label>
+                    <label>
+                      Edad
+                      <input name="edad" type="number" min="4" max="18" defaultValue="9" required />
+                    </label>
+                  </div>
+                  <div className="form-grid">
+                    <label>
+                      Avatar (Emoji)
+                      <select name="avatar" defaultValue="🦊">
+                        <option value="🦊">🦊 Zorro</option>
+                        <option value="🐼">🐼 Panda</option>
+                        <option value="🦁">🦁 León</option>
+                        <option value="🐨">🐨 Koala</option>
+                        <option value="🦄">🦄 Unicornio</option>
+                      </select>
+                    </label>
+                    <label>
+                      Objetivo personal
+                      <input name="meta" placeholder="Ej: Mejorar mi rutina de estudio" defaultValue="Crecer con autonomía" required />
+                    </label>
+                  </div>
+                  <button type="submit" className="button primary">
+                    Añadir hijo a la familia
+                  </button>
+                </form>
+              </section>
+            </div>
+          )}
+
+          {/* ADVICE VIEW */}
+          {view === "advice" && (
+            <div>
+              <div className="page-heading">
+                <div>
+                  <div className="date-label">BASE EDUCATIVA</div>
+                  <h1>Pautas y hábitos</h1>
+                  <p>Orientaciones prácticas basadas en investigación sobre refuerzo positivo.</p>
+                </div>
+              </div>
+
+              <div className="advice-grid">
+                {advice.map((item, idx) => (
+                  <div className="advice-card" key={idx}>
+                    <span className="eyebrow">{item.tag}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                    <blockquote>«{item.example}»</blockquote>
+                    <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: 8 }}>
+                      Para el niño: {item.child}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* SETTINGS VIEW */}
+          {view === "settings" && parent && (
+            <div className="settings-grid">
+              <section className="panel">
+                <span className="eyebrow">REGLAS DE LA FAMILIA</span>
+                <h3>Configuración general</h3>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const form = new FormData(e.currentTarget);
+                    family.name = String(form.get("familia") || family.name).trim();
+                    family.settings.acceptable = Number(form.get("aceptable") || 60);
+                    family.settings.target = Number(form.get("meta") || 85);
+                    family.settings.negativeEnabled = form.get("negativos") === "on";
+                    saveStoredFamily({ ...family });
+                    hapticSuccess();
+                    onUpdate();
+                    alert("Configuración guardada correctamente");
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
+                >
+                  <label>
+                    Nombre de la familia
+                    <input name="familia" defaultValue={family.name} maxLength={60} required />
+                  </label>
+                  <div className="form-grid">
+                    <label>
+                      Inicio zona acordada
+                      <input name="aceptable" type="number" min="10" max="90" defaultValue={family.settings.acceptable} required />
+                    </label>
+                    <label>
+                      Objetivo meta
+                      <input name="meta" type="number" min="20" max="100" defaultValue={family.settings.target} required />
+                    </label>
+                  </div>
+                  <label className="checkbox">
+                    <input type="checkbox" name="negativos" defaultChecked={family.settings.negativeEnabled} />
+                    Permitir ajustes negativos en la barra
+                  </label>
+                  <button type="submit" className="button primary">
+                    Guardar reglas
+                  </button>
+                </form>
+
+                <div className="rules">
+                  <h4>Cómo funciona la barra</h4>
+                  <ul>
+                    <li>Empieza en 50 y se mueve entre 0 y 100.</li>
+                    <li>Los puntos positivos aumentan también el saldo de recompensas.</li>
+                    <li>Los puntos negativos no descuentan saldo ya ganado.</li>
+                  </ul>
+                </div>
+              </section>
+
+              <div>
+                <section className="panel">
+                  <span className="eyebrow">COPIA DE SEGURIDAD</span>
+                  <h3>Respaldo local</h3>
+                  <p className="muted" style={{ marginBottom: 14 }}>
+                    Exporta tus datos familiares en formato JSON para no perder nada.
+                  </p>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      onClick={() => {
+                        const json = exportFamilyBackup();
+                        navigator.clipboard?.writeText(json);
+                        hapticSuccess();
+                        alert("Copia de seguridad copiada al portapapeles.");
+                      }}
+                    >
+                      Copiar backup JSON
+                    </button>
+                  </div>
+                </section>
+
+                <section className="panel" style={{ marginTop: 22 }}>
+                  <span className="eyebrow">TRANSPARENCIA TÉCNICA</span>
+                  <h3>Arquitectura y Tecnologías</h3>
+                  <p className="muted" style={{ marginBottom: 16 }}>
+                    Mapa interactivo de módulos móviles, plugins nativos y diagnóstico de salud.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      hapticTap();
+                      setShowTechStack(true);
+                    }}
+                    className="button secondary full"
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 18, color: "var(--green)" }}>📱</span>
+                      <div style={{ textAlign: "left" }}>
+                        <div style={{ fontWeight: 600, color: "var(--ink)", fontSize: 13 }}>Stack Móvil Nativo</div>
+                        <div style={{ fontSize: 11, color: "var(--muted)" }}>Grafo Canvas 2D y salud en vivo</div>
+                      </div>
+                    </div>
+                    <Icon name="arrow" size={16} />
+                  </button>
+                </section>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {showTechStack && (
+        <Suspense fallback={null}>
+          <AppArchitectureGraph onClose={() => setShowTechStack(false)} />
+        </Suspense>
+      )}
+    </div>
+  );
+}

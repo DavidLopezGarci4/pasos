@@ -1,0 +1,22 @@
+{
+  "appName": "Pasos Mobile",
+  "version": "1.0.0",
+  "description": "App Android nativa para hábitos familiares con hápticos y gamificación",
+  "nodes": [
+    { "id": "capacitor", "label": "Capacitor 7", "version": "7.0.1", "role": "Puente Nativo Android, Permisos y Lifecycle", "category": "mobile_apps", "icon": "Smartphone", "healthCheck": "native_bridge" },
+    { "id": "react", "label": "React 19", "version": "19.0", "role": "UI Reactiva Móvil y Motor de Vistas", "category": "local_web_apps", "icon": "Atom", "healthCheck": "react_runtime" },
+    { "id": "storage", "label": "Storage Local", "version": "v1.0", "role": "Persistencia Offline Blindada en Dispositivo", "category": "local_persistence", "icon": "Database", "healthCheck": "storage" },
+    { "id": "haptics", "label": "Motor Háptico", "version": "Native", "role": "Vibración y Feedback Físico Táctil en Logros", "category": "mobile_apps", "icon": "Activity", "healthCheck": "haptics" },
+    { "id": "notifications", "label": "Alarmas Locales", "version": "Native", "role": "Recordatorios de Rutinas en Barra de Estado", "category": "mobile_apps", "icon": "Bell", "healthCheck": "notifications" },
+    { "id": "pixel_pet", "label": "Pixel Pet", "version": "Engine v2", "role": "Mascotas Virtuales en Canvas 2D Retro", "category": "graphics_multimedia", "icon": "Gamepad", "healthCheck": "pet_engine" },
+    { "id": "design_system", "label": "Design System", "version": "Mobile", "role": "CSS Adaptativo con Safe-Area Insets", "category": "graphics_multimedia", "icon": "Palette", "healthCheck": "static" }
+  ],
+  "links": [
+    { "source": "capacitor", "target": "react", "relation": "aloja_webview" },
+    { "source": "capacitor", "target": "haptics", "relation": "dispara_vibracion" },
+    { "source": "capacitor", "target": "notifications", "relation": "programa_alarmas" },
+    { "source": "react", "target": "storage", "relation": "persiste_datos" },
+    { "source": "react", "target": "pixel_pet", "relation": "renderiza_criatura" },
+    { "source": "react", "target": "design_system", "relation": "aplica_tema" }
+  ]
+}
