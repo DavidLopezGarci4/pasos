@@ -147,6 +147,50 @@ const FAQ_DATA: FAQSection[] = [
       },
     ],
   },
+  {
+    title: "7. Catálogo de Recompensas y Canjes",
+    items: [
+      {
+        q: "¿Cómo se solicitan y canjean premios?",
+        points: [
+          "El niño selecciona una recompensa de su catálogo y pulsa «Pedir canje».",
+          "El adulto revisa y aprueba la solicitud en la pestaña «Solicitudes».",
+        ],
+      },
+    ],
+  },
+  {
+    title: "8. Ergonomía, Barrera de 0.5 cm y Transparencia Técnica",
+    items: [
+      {
+        q: "¿Para qué sirve la reserva de 0.5 cm y el bloqueo vertical?",
+        points: [
+          "Reserva física arriba y abajo para no tapar el reloj ni los botones de navegación.",
+          "Bloquea rebotes parásitos para una experiencia fluida tipo app nativa.",
+          "Compatible con gestos predictivos de Android 15.",
+        ],
+      },
+      {
+        q: "¿Cómo inspeccionar la salud del stack móvil?",
+        points: [
+          "En «Ajustes», pulsa «Stack Móvil Nativo» para abrir el grafo Canvas 2D en tiempo real.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "9. Acerca de la App y Novedades de la Versión",
+    items: [
+      {
+        q: "¿Cómo consultar el historial de versiones y novedades?",
+        points: [
+          "Pulsa el botón «v1.2.0 · Novedades» en la barra superior o en «Ajustes».",
+          "Visualiza las mejoras de la versión actual y el historial desplegable en acordeón.",
+          "Accede en 1 toque al diagnóstico de la arquitectura y la política de privacidad local.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function FAQView() {

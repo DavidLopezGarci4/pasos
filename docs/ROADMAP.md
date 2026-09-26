@@ -65,6 +65,8 @@ Pasos evoluciona bajo un modelo de doble arquitectura complementaria:
 * [x] **Integración Android 15 & App Shortcuts:**
   * Atajos dinámicos de lanzador (`shortcuts.xml`) para abrir directamente 'Rutinas' y 'Mascota'.
   * Compatibilidad con gestos predictivos de Android 14+ y 15 (`enableOnBackInvokedCallback="true"`).
+* [x] **Modal Acerca de & Changelog de Usuario:**
+  * Componente nativo `AboutModal` con tarjeta destacada de novedades para humanos (`changelog.user.json`), historial en acordeón y enlace al diagnóstico en tiempo real de la arquitectura.
 
 ---
 

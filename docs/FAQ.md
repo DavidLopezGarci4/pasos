@@ -14,6 +14,7 @@
 7. [Catálogo de Recompensas y Canjes](#7-catálogo-de-recompensas-y-canjes)
 8. [Copias de Seguridad, Respaldo en Disco y Restauración SAF](#8-copias-de-seguridad-respaldo-en-disco-y-restauración-saf)
 9. [Ergonomía, Barrera de 0.5 cm y Transparencia Técnica](#9-ergonomía-barrera-de-05-cm-y-transparencia-técnica)
+10. [Acerca de la App, Novedades e Historial de Versiones](#10-acerca-de-la-app-novedades-e-historial-de-versiones)
 
 ---
 
@@ -122,3 +123,13 @@
 * **Anti-overscroll:** Bloquea rebotes parásitos para garantizar una navegación táctil sólida.
 * **Gestos predictivos Android 15:** Compatible con la navegación por gestos moderna (`enableOnBackInvokedCallback`).
 * **Grafo de Arquitectura:** En Ajustes, accede a «Mapa de Arquitectura» para inspeccionar módulos, plugins y estado de salud en tiempo real.
+
+---
+
+## 10. Acerca de la App, Novedades e Historial de Versiones
+
+### ¿Dónde puedo ver las novedades de la versión instalada?
+* **Acceso desde la cabecera:** Pulsa en el botón «v1.2.0 · Novedades» situado en la barra superior para abrir el panel informativo.
+* **Acceso desde Ajustes:** En la sección «Transparencia Técnica», pulsa «Acerca de Pasos y Novedades».
+* **Contenido para humanos:** Muestra las mejoras de la versión v1.2.0 explicadas en un lenguaje claro y libre de tecnicismos, junto con un historial desplegable en acordeón de las versiones anteriores (`v1.1.1`, `v1.1.0`, `v1.0.0`).
+* **Inspección del stack en 1 toque:** Desde el mismo modal puedes pulsar «Inspeccionar Salud de la Arquitectura» para evaluar el estado de los módulos nativos en tiempo real.
