@@ -17,7 +17,7 @@ if (!fs.existsSync(sourceResDir)) {
   process.exit(1);
 }
 
-// Copiar mipmap folders
+// 1. Copiar mipmap folders
 const mipmaps = ['mipmap-mdpi', 'mipmap-hdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
 for (const mm of mipmaps) {
   const srcMm = path.join(sourceResDir, mm);
@@ -28,7 +28,34 @@ for (const mm of mipmaps) {
   }
 }
 
-// Copiar icono web/pwa principal
+// 2. Sincronizar fondo adaptativo según modo
+const normalBgXml = `<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="315"
+        android:startColor="#4a7359"
+        android:centerColor="#335641"
+        android:endColor="#1b3024" />
+</shape>
+`;
+
+const verticonsBgXml = `<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="315"
+        android:startColor="#1a3224"
+        android:centerColor="#112218"
+        android:endColor="#0a150f" />
+</shape>
+`;
+
+const bgDrawablePath = path.join(androidRes, 'drawable', 'ic_launcher_background.xml');
+fs.writeFileSync(bgDrawablePath, mode === 'verticons' ? verticonsBgXml : normalBgXml, 'utf8');
+console.log('  ✓ drawable/ic_launcher_background.xml sincronizado');
+
+// 3. Copiar icono web/pwa principal
 const srcSvg = mode === 'verticons'
   ? path.join(publicDir, 'icon-verticons.svg')
   : path.join(publicDir, 'icon-normal.svg');
