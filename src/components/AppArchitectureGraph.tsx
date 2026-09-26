@@ -720,6 +720,8 @@ export default function AppArchitectureGraph({ onClose }: { onClose?: () => void
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onPointerLeave={handlePointerUp}
             style={{
               width: "100%",
               height: "100%",

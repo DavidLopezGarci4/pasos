@@ -20,17 +20,18 @@ import {
   deleteReward,
   resetChild,
   deleteChild,
-  publicFamily,
 } from "../lib/domain";
-import { saveStoredFamily, setActiveUser, exportFamilyBackup, importFamilyBackup } from "../lib/mobile-storage";
+import { saveStoredFamily, setActiveUser, exportFamilyBackup, importFamilyBackup, getStoredUsers, saveStoredUsers } from "../lib/mobile-storage";
+import { Share } from "@capacitor/share";
 import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
 import { Brand, Garden, Icon } from "./icon";
 import { PixelPet } from "./pixel-pet";
 import { PetView } from "./pet-modal";
+import { FAQView } from "./faq-view";
 
 const AppArchitectureGraph = lazy(() => import("./AppArchitectureGraph"));
 
-type View = "home" | "tasks" | "rewards" | "requests" | "family" | "pet" | "advice" | "settings";
+type View = "home" | "tasks" | "rewards" | "requests" | "family" | "pet" | "advice" | "faq" | "settings";
 
 export function Portal({
   snapshot,
@@ -44,6 +45,18 @@ export function Portal({
 
   const { family, user, members, today } = snapshot;
   const parent = user.role === "parent";
+
+  const visibleChildren = parent
+    ? family.children
+    : family.children.filter((c) => c.id === user.id);
+
+  const visibleTasks = parent
+    ? family.tasks
+    : family.tasks.filter((t) => taskChildIds(t).includes(user.id));
+
+  const visibleEntries = parent
+    ? family.entries
+    : family.entries.filter((e) => e.childId === user.id);
 
   const handleLogout = () => {
     hapticTap();
@@ -96,9 +109,30 @@ export function Portal({
 
     family.children.push(newChild);
     saveStoredFamily({ ...family });
+
+    const existingUsers = getStoredUsers();
+    if (!existingUsers.some((u) => u.id === newChild.id)) {
+      saveStoredUsers([...existingUsers, { id: newChild.id, name: newChild.name, role: "child" }]);
+    }
+
     hapticSuccess();
     onUpdate();
     (e.target as HTMLFormElement).reset();
+  };
+
+  const handleDeleteChild = (childId: string) => {
+    if (!confirm("¿Seguro que deseas eliminar este perfil?")) return;
+    try {
+      deleteChild(family, childId, user);
+      saveStoredFamily({ ...family });
+      const remainingUsers = getStoredUsers().filter((u) => u.id !== childId);
+      saveStoredUsers(remainingUsers);
+      hapticSuccess();
+      onUpdate();
+    } catch (err: unknown) {
+      hapticWarning();
+      alert(err instanceof Error ? err.message : "Error al eliminar perfil");
+    }
   };
 
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -254,6 +288,15 @@ export function Portal({
           >
             <Icon name="book" /> Pautas educativas
           </button>
+          <button
+            className={view === "faq" ? "active" : ""}
+            onClick={() => {
+              hapticTap();
+              setView("faq");
+            }}
+          >
+            <Icon name="help" /> Guía y FAQ
+          </button>
           {parent && (
             <button
               className={view === "settings" ? "active" : ""}
@@ -307,7 +350,7 @@ export function Portal({
 
               {/* Children Overview Cards */}
               <div className="children-grid">
-                {family.children.map((child) => {
+                {visibleChildren.map((child) => {
                   const status = statusFor(child.score, family.settings);
                   return (
                     <div className="child-card" key={child.id}>
@@ -403,7 +446,7 @@ export function Portal({
                   <section className="panel">
                     <span className="eyebrow">ÚLTIMOS MOVIMIENTOS</span>
                     <h3>Historial reciente</h3>
-                    {family.entries.slice(0, 5).map((e) => (
+                    {visibleEntries.slice(0, 5).map((e) => (
                       <div className="history-row" key={e.id}>
                         <div className={`history-symbol ${e.delta >= 0 ? "green" : "coral"}`}>
                           {e.delta >= 0 ? "+" : "−"}
@@ -417,7 +460,7 @@ export function Portal({
                         </div>
                       </div>
                     ))}
-                    {family.entries.length === 0 && <p className="muted">Aún no hay movimientos registrados.</p>}
+                    {visibleEntries.length === 0 && <p className="muted">Aún no hay movimientos registrados.</p>}
                   </section>
                 </div>
               )}
@@ -437,38 +480,73 @@ export function Portal({
 
               <div className="panel">
                 <h3>Tareas acordadas</h3>
-                {family.tasks.map((t) => {
-                  const req = taskRequest(family, t, today);
-                  const isDone = !!req && req.status === "approved";
+                {visibleTasks.map((t) => {
+                  const assignedChildren = family.children.filter((c) => taskChildIds(t).includes(c.id));
                   return (
-                    <div className="task-row" key={t.id}>
-                      <div className={`task-check ${isDone ? "done" : ""}`}>
-                        {isDone ? "✓" : "○"}
+                    <div className="task-row" key={t.id} style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "stretch" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                        <div className="task-copy">
+                          <h4>{t.title}</h4>
+                          <p>
+                            {t.cue} → {t.firstStep} ({t.frequency === "daily" ? "Diaria" : "Puntual"})
+                          </p>
+                        </div>
+                        <div className="points">+{t.points} pts</div>
                       </div>
-                      <div className="task-copy">
-                        <h4>{t.title}</h4>
-                        <p>
-                          {t.cue} → {t.firstStep} ({t.frequency === "daily" ? "Diaria" : "Puntual"})
-                        </p>
-                      </div>
-                      <div className="points">+{t.points} pts</div>
-                      <div className="row-actions">
-                        {!isDone && (
-                          <button
-                            type="button"
-                            className="button secondary small"
-                            onClick={() => handleCompleteTask(t.id)}
-                          >
-                            Marcar hecha
-                          </button>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", borderTop: "1px dashed var(--edge)", paddingTop: 8 }}>
+                        {user.role === "child" ? (
+                          (() => {
+                            const req = taskRequest(family, t, today, user.id);
+                            const isDone = !!req && req.status === "approved";
+                            return (
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span className={`task-check ${isDone ? "done" : ""}`} style={{ marginRight: 8 }}>
+                                  {isDone ? "✓" : "○"}
+                                </span>
+                                {!isDone ? (
+                                  <button
+                                    type="button"
+                                    className="button secondary small"
+                                    onClick={() => handleCompleteTask(t.id, user.id)}
+                                  >
+                                    Marcar hecha
+                                  </button>
+                                ) : (
+                                  <span className="pill green">Hecha hoy</span>
+                                )}
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          assignedChildren.map((child) => {
+                            const req = taskRequest(family, t, today, child.id);
+                            const isDone = !!req && req.status === "approved";
+                            return (
+                              <div key={child.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.04)", padding: "4px 8px", borderRadius: 8 }}>
+                                <span>{child.avatar} {child.name}:</span>
+                                {isDone ? (
+                                  <span className="pill green" style={{ fontSize: 11, padding: "2px 6px" }}>✓ Hecha</span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="button secondary small"
+                                    style={{ fontSize: 11, padding: "2px 8px" }}
+                                    onClick={() => handleCompleteTask(t.id, child.id)}
+                                  >
+                                    Marcar hecha
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })
                         )}
-                        {isDone && <span className="pill green">Hecha hoy</span>}
                       </div>
                     </div>
                   );
                 })}
 
-                {family.tasks.length === 0 && <p className="muted">No hay tareas creadas todavía.</p>}
+                {visibleTasks.length === 0 && <p className="muted">No hay tareas creadas todavía.</p>}
               </div>
 
               {parent && (
@@ -597,9 +675,20 @@ export function Portal({
                       <span>OBJETIVO</span>
                       {c.goal}
                     </div>
-                    <div className="child-bottom">
-                      <span>Puntuación: <strong>{c.score}/100</strong></span>
-                      <span>Saldo: <strong>{c.balance} pts</strong></span>
+                    <div className="child-bottom" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <span>Puntuación: <strong>{c.score}/100</strong></span>
+                        <span style={{ marginLeft: 8 }}>Saldo: <strong>{c.balance} pts</strong></span>
+                      </div>
+                      <button
+                        type="button"
+                        className="button secondary small"
+                        style={{ color: "#ef4444", borderColor: "rgba(239, 68, 68, 0.3)", padding: "4px 8px" }}
+                        onClick={() => handleDeleteChild(c.id)}
+                        title="Eliminar perfil"
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -670,6 +759,9 @@ export function Portal({
             </div>
           )}
 
+          {/* FAQ VIEW */}
+          {view === "faq" && <FAQView />}
+
           {/* SETTINGS VIEW */}
           {view === "settings" && parent && (
             <div className="settings-grid">
@@ -731,18 +823,55 @@ export function Portal({
                   <p className="muted" style={{ marginBottom: 14 }}>
                     Exporta tus datos familiares en formato JSON para no perder nada.
                   </p>
-                  <div style={{ display: "flex", gap: 10 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                     <button
                       type="button"
                       className="button secondary small"
-                      onClick={() => {
-                        const json = exportFamilyBackup();
-                        navigator.clipboard?.writeText(json);
-                        hapticSuccess();
-                        alert("Copia de seguridad copiada al portapapeles.");
+                      onClick={async () => {
+                        try {
+                          const json = exportFamilyBackup();
+                          if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(json);
+                            hapticSuccess();
+                            alert("Copia de seguridad copiada al portapapeles.");
+                          } else {
+                            throw new Error("Portapapeles no disponible");
+                          }
+                        } catch {
+                          try {
+                            const json = exportFamilyBackup();
+                            await Share.share({
+                              title: "Copia de Seguridad Pasos",
+                              text: json,
+                            });
+                          } catch {
+                            hapticWarning();
+                            alert("No se pudo copiar al portapapeles automáticamente.");
+                          }
+                        }
                       }}
                     >
                       Copiar backup JSON
+                    </button>
+
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      onClick={async () => {
+                        try {
+                          const json = exportFamilyBackup();
+                          await Share.share({
+                            title: `Backup Pasos - ${family.name}`,
+                            text: json,
+                            dialogTitle: "Compartir o guardar copia de seguridad",
+                          });
+                          hapticSuccess();
+                        } catch {
+                          // User dismissed or share error
+                        }
+                      }}
+                    >
+                      Compartir archivo
                     </button>
                   </div>
                 </section>

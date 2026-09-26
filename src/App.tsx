@@ -3,7 +3,6 @@ import { App as CapApp } from "@capacitor/app";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { getStoredFamily, getActiveUser, getStoredUsers, subscribeStore } from "./lib/mobile-storage";
 import { dayKey } from "./lib/model";
-import { publicFamily } from "./lib/domain";
 import { Portal } from "./components/portal";
 import { Welcome } from "./components/welcome";
 
@@ -20,15 +19,17 @@ export function App() {
     }
 
     // Handle Android hardware back button
-    let backHandler: any;
+    let backListenerHandle: { remove: () => Promise<void> } | null = null;
     try {
-      backHandler = CapApp.addListener("backButton", ({ canGoBack }) => {
+      CapApp.addListener("backButton", ({ canGoBack }) => {
         if (!canGoBack) {
           CapApp.exitApp();
         } else {
           window.history.back();
         }
-      });
+      }).then((handle) => {
+        backListenerHandle = handle;
+      }).catch(() => {});
     } catch {
       // Ignored
     }
@@ -39,7 +40,9 @@ export function App() {
 
     return () => {
       unsub();
-      if (backHandler && backHandler.remove) backHandler.remove();
+      if (backListenerHandle) {
+        backListenerHandle.remove().catch(() => {});
+      }
     };
   }, []);
 
@@ -55,13 +58,12 @@ export function App() {
     return <Welcome setup={!family} onComplete={handleUpdate} />;
   }
 
-  const sanitizedFamily = publicFamily(family, user);
   const today = dayKey(family.settings.timezone);
 
   return (
     <Portal
       snapshot={{
-        family: sanitizedFamily,
+        family,
         user,
         members: user.role === "parent" ? members : [user],
         today,

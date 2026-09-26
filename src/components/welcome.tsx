@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Brand, Garden, Icon } from "./icon";
-import { saveStoredFamily, saveStoredUsers, setActiveUser, getStoredUsers } from "../lib/mobile-storage";
+import { saveStoredFamily, saveStoredUsers, setActiveUser, getStoredUsers, getStoredFamily } from "../lib/mobile-storage";
 import { hapticSuccess, hapticWarning } from "../lib/haptics";
 import type { Family, Member } from "../lib/model";
 
@@ -49,8 +49,20 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
         hapticSuccess();
         onComplete();
       } else {
-        const users = getStoredUsers();
-        const user = users.find((u) => u.name.toLowerCase() === name.toLowerCase());
+        const storedUsers = getStoredUsers();
+        const family = getStoredFamily();
+        const allUsers = [...storedUsers];
+        if (family && family.children) {
+          family.children.forEach((c) => {
+            if (!allUsers.some((u) => u.id === c.id || u.name.toLowerCase() === c.name.toLowerCase())) {
+              allUsers.push({ id: c.id, name: c.name, role: "child" });
+            }
+          });
+          if (allUsers.length !== storedUsers.length) {
+            saveStoredUsers(allUsers);
+          }
+        }
+        const user = allUsers.find((u) => u.name.toLowerCase() === name.toLowerCase());
         if (!user) {
           throw new Error("No se ha encontrado un perfil con ese nombre.");
         }

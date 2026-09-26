@@ -340,7 +340,9 @@ export function PetView({ snapshot }: { snapshot: Snapshot }) {
   const children = family.children;
   const [selectedChildId, setSelectedChildId] = useState<string>(children[0]?.id || "");
 
-  const activeChild = children.find((c) => c.id === selectedChildId) || children[0];
+  const activeChild = parent
+    ? children.find((c) => c.id === selectedChildId) || children[0]
+    : children.find((c) => c.id === user.id) || children[0];
 
   if (!children.length) {
     return (

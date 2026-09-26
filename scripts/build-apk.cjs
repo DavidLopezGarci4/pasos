@@ -9,16 +9,36 @@ const version = pkg.version || '1.0.0';
 
 console.log(`\n📦 INICIANDO COMPILACIÓN Y EMPAQUETADO RELEASE DE PASOS (v${version})...\n`);
 
-// 1. JDK 21
-const jdkPath = 'C:\\Users\\dace8\\.jdks\\jbr-21.0.11';
-const javaHome = fs.existsSync(jdkPath) ? jdkPath : process.env.JAVA_HOME;
-const env = {
-  ...process.env,
-  JAVA_HOME: javaHome,
-  Path: `${path.join(javaHome, 'bin')};${process.env.Path}`,
-};
+// 1. JDK 21 / Java Resolution
+const candidateJdks = [
+  'C:\\Users\\dace8\\.jdks\\jbr-21.0.11',
+  'C:\\Program Files\\Android\\Android Studio\\jbr',
+  'C:\\Program Files\\Java\\jdk-21',
+  'C:\\Program Files\\Java\\jdk-17',
+];
+let javaHome = process.env.JAVA_HOME;
+if (!javaHome || !fs.existsSync(javaHome)) {
+  const found = candidateJdks.find((p) => fs.existsSync(p));
+  if (found) javaHome = found;
+}
+const env = { ...process.env };
+if (javaHome && fs.existsSync(javaHome)) {
+  env.JAVA_HOME = javaHome;
+  env.Path = `${path.join(javaHome, 'bin')};${process.env.Path || ''}`;
+}
 
-// 2. Sincronizar assets fuera de OneDrive para evitar bloqueos de sincronización
+// 2. Sincronizar dist web a Android assets
+const distDir = path.join(rootDir, 'dist');
+const androidAssetsPublic = path.join(androidDir, 'app', 'src', 'main', 'assets', 'public');
+if (fs.existsSync(distDir)) {
+  if (!fs.existsSync(androidAssetsPublic)) {
+    fs.mkdirSync(androidAssetsPublic, { recursive: true });
+  }
+  fs.cpSync(distDir, androidAssetsPublic, { recursive: true });
+  console.log('⚡ Web dist sincronizado en assets de Android.');
+}
+
+// Sincronizar assets fuera de OneDrive para evitar bloqueos de sincronización
 const externalAssetsDir = 'C:\\Users\\dace8\\.gradle_builds\\Pasos\\assets';
 try {
   if (fs.existsSync(externalAssetsDir)) {
