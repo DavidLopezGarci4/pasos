@@ -1082,7 +1082,7 @@ export function Portal({
           )}
 
           {/* FAQ VIEW */}
-          {view === "faq" && <FAQView />}
+          {view === "faq" && <FAQView onNavigate={(targetView) => setView(targetView as View)} />}
 
           {/* SETTINGS VIEW */}
           {view === "settings" && parent && (
