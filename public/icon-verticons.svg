@@ -1,22 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" width="800" height="1200">
   <defs>
     <!-- Multi-tier Verticons Material Shadows -->
-    <filter id="vertShadow" x="-30%" y="-20%" width="160%" height="155%">
-      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.35"/>
-      <feDropShadow dx="0" dy="26" stdDeviation="30" flood-color="#06120b" flood-opacity="0.52"/>
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.22"/>
+    <filter id="vertShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.38"/>
+      <feDropShadow dx="0" dy="32" stdDeviation="40" flood-color="#06120b" flood-opacity="0.55"/>
     </filter>
 
     <!-- Vertical Card Gradient -->
     <linearGradient id="vertCardBg" x1="50%" y1="0%" x2="50%" y2="100%">
       <stop offset="0%" stop-color="#497258"/>
-      <stop offset="25%" stop-color="#365843"/>
+      <stop offset="22%" stop-color="#365843"/>
       <stop offset="65%" stop-color="#243f30"/>
-      <stop offset="100%" stop-color="#15271d"/>
+      <stop offset="100%" stop-color="#14261b"/>
     </linearGradient>
 
-    <!-- Top Card Highlight -->
-    <radialGradient id="vertTopGlow" cx="50%" cy="12%" r="55%">
+    <!-- Top Card Ambient Glow -->
+    <radialGradient id="vertTopGlow" cx="50%" cy="12%" r="60%">
       <stop offset="0%" stop-color="#72aa86" stop-opacity="0.45"/>
       <stop offset="100%" stop-color="#72aa86" stop-opacity="0"/>
     </radialGradient>
@@ -30,33 +29,37 @@
 
     <!-- Inner Badge Shadow -->
     <filter id="badgeShadow" x="-25%" y="-20%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#07150d" flood-opacity="0.38"/>
-      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#07150d" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#07150d" flood-opacity="0.42"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#07150d" flood-opacity="0.25"/>
     </filter>
   </defs>
 
-  <!-- ================= VERTICAL RECTANGULAR CARD ================= -->
-  <g filter="url(#vertShadow)">
-    <rect x="114" y="26" width="284" height="460" rx="60" fill="url(#vertCardBg)"/>
-    <rect x="114" y="26" width="284" height="460" rx="60" fill="url(#vertTopGlow)"/>
-    <rect x="115.5" y="27.5" width="281" height="457" rx="58.5" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2.5"/>
+  <!-- ================= VERTICAL RECTANGULAR CARD (Full 2:3 Verticon Standard) ================= -->
+  <g>
+    <!-- Base Card Body -->
+    <rect x="0" y="0" width="800" height="1200" rx="140" fill="url(#vertCardBg)"/>
+    <rect x="0" y="0" width="800" height="1200" rx="140" fill="url(#vertTopGlow)"/>
+
+    <!-- Dual Border Framing (Outer subtle emerald accent & inner crisp highlight) -->
+    <rect x="2" y="2" width="796" height="1196" rx="138" fill="none" stroke="#52a06c" stroke-opacity="0.45" stroke-width="4"/>
+    <rect x="8" y="8" width="784" height="1184" rx="132" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="3"/>
   </g>
 
   <!-- ================= TOP CONTEXTUAL PILL ================= -->
-  <rect x="208" y="56" width="96" height="22" rx="11" fill="#ffffff" fill-opacity="0.13"/>
-  <circle cx="228" cy="67" r="4.2" fill="#f4be5e"/>
-  <circle cx="256" cy="67" r="4.2" fill="#c87a58"/>
-  <circle cx="284" cy="67" r="4.2" fill="#e9eedf"/>
+  <rect x="310" y="80" width="180" height="42" rx="21" fill="#ffffff" fill-opacity="0.13"/>
+  <circle cx="350" cy="101" r="7.5" fill="#f4be5e"/>
+  <circle cx="400" cy="101" r="7.5" fill="#c87a58"/>
+  <circle cx="450" cy="101" r="7.5" fill="#e9eedf"/>
 
-  <!-- ================= CENTER HERO BADGE ================= -->
+  <!-- ================= CENTER HERO BADGE (Expanded & Proportional) ================= -->
   <g filter="url(#badgeShadow)">
-    <rect x="162" y="108" width="188" height="188" rx="52" fill="url(#badgeGrad)" transform="rotate(-5 256 202)"/>
-    <rect x="164" y="110" width="184" height="184" rx="50" fill="none" stroke="#ffffff" stroke-opacity="0.9" stroke-width="2" transform="rotate(-5 256 202)"/>
+    <rect x="175" y="260" width="450" height="450" rx="124" fill="url(#badgeGrad)" transform="rotate(-5 400 485)"/>
+    <rect x="179" y="264" width="442" height="442" rx="120" fill="none" stroke="#ffffff" stroke-opacity="0.92" stroke-width="4.5" transform="rotate(-5 400 485)"/>
   </g>
 
   <!-- Pasos Leaf Mark Inside Badge -->
-  <g transform="rotate(-5 256 202)">
-    <g transform="translate(256 202) scale(7.5) translate(-12.8 -12.4)">
+  <g transform="rotate(-5 400 485)">
+    <g transform="translate(400 485) scale(18) translate(-12.8 -12.4)">
       <path d="M20 3C5 1 1 10 6 16s16 3 14-13Z" fill="#416850" fill-opacity="0.22"/>
       <path d="M20 3C5 1 1 10 6 16s16 3 14-13Z" fill="none" stroke="#1b3224" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M5 21C7.2 16.8 11.2 12.8 16.8 8.2" fill="none" stroke="#c87a58" stroke-width="2.2" stroke-linecap="round"/>
@@ -65,17 +68,18 @@
   </g>
 
   <!-- ================= BOTTOM CONTEXTUAL UI ================= -->
-  <text x="256" y="342" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="25" font-weight="900" letter-spacing="6" fill="#f3f7ee">PASOS</text>
+  <text x="400" y="825" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="64" font-weight="900" letter-spacing="14" fill="#f3f7ee">PASOS</text>
 
-  <g transform="translate(0, 16)">
-    <rect x="176" y="356" width="40" height="6" rx="3" fill="#f4be5e"/>
-    <rect x="224" y="356" width="64" height="6" rx="3" fill="#c87a58"/>
-    <rect x="296" y="356" width="40" height="6" rx="3" fill="#ffffff" fill-opacity="0.24"/>
+  <!-- Segmented progress bars -->
+  <g transform="translate(0, 875)">
+    <rect x="235" y="0" width="95" height="13" rx="6.5" fill="#f4be5e"/>
+    <rect x="345" y="0" width="145" height="13" rx="6.5" fill="#c87a58"/>
+    <rect x="505" y="0" width="60" height="13" rx="6.5" fill="#ffffff" fill-opacity="0.25"/>
   </g>
 
-  <text x="256" y="420" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="700" letter-spacing="2.2" fill="#c3d9bb" opacity="0.95">CRECEMOS EN FAMILIA</text>
+  <text x="400" y="995" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="5.5" fill="#c3d9bb" opacity="0.95">CRECEMOS EN FAMILIA</text>
 
-  <g transform="translate(256, 446)">
-    <circle cx="0" cy="0" r="3.5" fill="#f4be5e" opacity="0.9"/>
+  <g transform="translate(400, 1060)">
+    <circle cx="0" cy="0" r="8" fill="#f4be5e" opacity="0.9"/>
   </g>
 </svg>
