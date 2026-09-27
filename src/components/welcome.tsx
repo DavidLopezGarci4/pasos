@@ -9,6 +9,7 @@ import {
   importFamilyBackup,
 } from "../lib/mobile-storage";
 import { hapticSuccess, hapticWarning, hapticTap } from "../lib/haptics";
+import { showToast } from "./toast";
 import type { Family, Member } from "../lib/model";
 
 export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () => void }) {
@@ -26,7 +27,7 @@ export function Welcome({ setup, onComplete }: { setup: boolean; onComplete: () 
         const res = importFamilyBackup(content);
         if (res.success) {
           hapticSuccess();
-          alert("¡Copia de seguridad restaurada correctamente!");
+          showToast("¡Copia de seguridad restaurada correctamente!", "success");
           onComplete();
         } else {
           throw new Error(res.error || "Archivo no compatible.");

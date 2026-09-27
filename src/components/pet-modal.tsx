@@ -6,6 +6,7 @@ import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
 import { playTap, playLevelUp, playPetFeed } from "../lib/sound";
 import { PixelPet } from "./pixel-pet";
 import { Icon } from "./icon";
+import { showToast } from "./toast";
 
 export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapshot }) {
   const [activeTab, setActiveTab] = useState<"play" | "feed" | "shop">("play");
@@ -98,7 +99,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       playLevelUp();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al jugar con la mascota");
+      showToast(err instanceof Error ? err.message : "Error al jugar con la mascota", "warning");
     }
   };
 
@@ -110,7 +111,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       playPetFeed();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al alimentar la mascota");
+      showToast(err instanceof Error ? err.message : "Error al alimentar la mascota", "warning");
     }
   };
 
@@ -121,7 +122,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       hapticSuccess();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al comprar accesorio");
+      showToast(err instanceof Error ? err.message : "Error al comprar accesorio", "warning");
     }
   };
 
@@ -131,7 +132,7 @@ export function PetConsole({ child, snapshot }: { child: Child; snapshot: Snapsh
       saveStoredFamily({ ...family });
       hapticTap();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Error al equipar");
+      showToast(err instanceof Error ? err.message : "Error al equipar", "warning");
     }
   };
 

@@ -278,6 +278,21 @@ export const FAQ_DATA: FAQSection[] = [
         badge: "Ergonomía",
       },
       {
+        id: "haptica-toggle",
+        question: "¿Cómo activar o desactivar la respuesta háptica (vibración táctil)?",
+        bullets: [
+          "En la sección «Ajustes» dispones de la opción «Habilitar vibración háptica al pulsar».",
+          "Al desactivarlo, se silencian de inmediato todas las vibraciones de teclas numéricas, botones, temporizadores y juegos para un uso totalmente silencioso.",
+          "Cuentas con un botón «Probar vibración táctil» para verificar la respuesta del motor físico en tu smartphone.",
+        ],
+        tags: ["haptica", "vibracion", "tactil", "ajustes", "silencioso", "motor", "feedback", "on/off"],
+        badge: "Control Táctil",
+        actionLink: {
+          label: "Ir a Ajustes",
+          routeOrAction: "settings",
+        },
+      },
+      {
         id: "arquitectura-stack",
         question: "¿Cómo auditar la salud del stack tecnológico de la app?",
         bullets: [

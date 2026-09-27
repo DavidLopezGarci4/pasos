@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — Pasos Móvil (APK)
 
 > Guía de referencia rápida y operativa sobre todas las funciones activas en la versión oficial de Pasos APK.  
-> **Versión:** `v1.2.0` • **Módulos Auditados:** 11/11 • **Guías Operativas:** 20 temas • **Actualizado:** 27 de Septiembre de 2026
+> **Versión:** `v1.2.0` • **Módulos Auditados:** 11/11 • **Guías Operativas:** 21 temas • **Actualizado:** 27 de Septiembre de 2026
 
 ---
 
@@ -132,6 +132,11 @@
 * **Protección del reloj y la barra de navegación:** La app reserva medio centímetro físico arriba y abajo para evitar que el contenido tape la hora del móvil o los gestos del sistema.
 * **Anti-overscroll:** Bloquea rebotes parásitos para garantizar una navegación táctil sólida y fluida.
 * **Gestos predictivos Android 15:** Totalmente compatible con la navegación moderna por gestos (`enableOnBackInvokedCallback`).
+
+### ¿Cómo activar o desactivar la respuesta háptica (vibración táctil)?
+* **Interruptor general en Ajustes:** En la sección «Ajustes» dispones de la opción «Habilitar vibración háptica al pulsar».
+* **Silenciamiento total opcional:** Si lo desactivas, se omiten al instante todas las vibraciones de teclas, botones, temporizadores y juegos con la mascota para un funcionamiento totalmente silencioso.
+* **Test de hardware:** Incluye un botón «Probar vibración táctil» para verificar la respuesta del motor háptico de tu smartphone en tiempo real.
 
 ### ¿Cómo auditar la salud del stack tecnológico de la app?
 * **Grafo de Arquitectura Canvas:** En «Ajustes», pulsa «Stack Móvil Nativo» para abrir el mapa interactivo Canvas 2D en tiempo real con diagnóstico de plugins y almacenamiento.

@@ -31,7 +31,8 @@ import {
   saveStoredUsers,
 } from "../lib/mobile-storage";
 import { Share } from "@capacitor/share";
-import { hapticSuccess, hapticTap, hapticWarning } from "../lib/haptics";
+import { hapticSuccess, hapticTap, hapticWarning, isHapticsEnabled, setHapticsEnabled, testHaptic } from "../lib/haptics";
+import { showToast } from "./toast";
 import { PinModal } from "./pin-modal";
 import { AboutModal } from "./about-modal";
 import { fireConfetti } from "../lib/confetti";
@@ -111,7 +112,7 @@ export function Portal({
       saveStoredFamily({ ...family });
       setPinModalOpen(false);
       hapticSuccess();
-      alert("¡PIN de control parental actualizado correctamente!");
+      showToast("¡PIN de control parental actualizado correctamente!", "success");
       onUpdate();
     }
   };
@@ -127,14 +128,14 @@ export function Portal({
         if (res.success) {
           hapticSuccess();
           fireConfetti({ count: 70 });
-          alert("¡Copia de seguridad restaurada correctamente con éxito!");
+          showToast("¡Copia de seguridad restaurada correctamente con éxito!", "success");
           onUpdate();
         } else {
           throw new Error(res.error || "Archivo no compatible.");
         }
       } catch (err: unknown) {
         hapticWarning();
-        alert(err instanceof Error ? err.message : "Error al restaurar archivo.");
+        showToast(err instanceof Error ? err.message : "Error al restaurar archivo.", "error");
       }
     };
     reader.readAsText(file);
@@ -146,13 +147,13 @@ export function Portal({
       const res = await saveDiskBackupSnapshot();
       if (res.success) {
         hapticSuccess();
-        alert("¡Copia guardada en el almacenamiento local del dispositivo!\n" + (res.uri || "Pasos/pasos-backup-latest.json"));
+        showToast("¡Copia guardada en Documents/Pasos!", "success");
       } else {
         throw new Error(res.error || "No se pudo guardar");
       }
     } catch (err: unknown) {
       hapticWarning();
-      alert("Error al guardar copia en disco: " + (err instanceof Error ? err.message : ""));
+      showToast("Error al guardar copia en disco: " + (err instanceof Error ? err.message : ""), "error");
     }
   };
 
@@ -187,11 +188,12 @@ export function Portal({
       addPoints(family, child, delta, title, user);
       saveStoredFamily({ ...family });
       hapticSuccess();
+      showToast(`¡Puntos registrados correctamente (${delta > 0 ? "+" + delta : delta})!`, "success");
       onUpdate();
       (e.target as HTMLFormElement).reset();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al registrar puntos");
+      showToast(err instanceof Error ? err.message : "Error al registrar puntos", "error");
     }
   };
 
@@ -226,6 +228,7 @@ export function Portal({
     }
 
     hapticSuccess();
+    showToast(`¡Perfil de ${newChild.name} añadido a la familia!`, "success");
     onUpdate();
     (e.target as HTMLFormElement).reset();
   };
@@ -238,10 +241,11 @@ export function Portal({
       const remainingUsers = getStoredUsers().filter((u) => u.id !== childId);
       saveStoredUsers(remainingUsers);
       hapticSuccess();
+      showToast("Perfil eliminado correctamente", "info");
       onUpdate();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al eliminar perfil");
+      showToast(err instanceof Error ? err.message : "Error al eliminar perfil", "error");
     }
   };
 
@@ -312,7 +316,7 @@ export function Portal({
       onUpdate();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al registrar tarea");
+      showToast(err instanceof Error ? err.message : "Error al registrar tarea", "error");
     }
   };
 
@@ -324,10 +328,18 @@ export function Portal({
       if (status === "approved" || status === "delivered") {
         fireConfetti({ count: 55 });
       }
+      showToast(
+        status === "approved"
+          ? "¡Solicitud aprobada con éxito!"
+          : status === "delivered"
+          ? "¡Recompensa marcada como entregada!"
+          : "Solicitud rechazada",
+        "info"
+      );
       onUpdate();
     } catch (err: unknown) {
       hapticWarning();
-      alert(err instanceof Error ? err.message : "Error al revisar solicitud");
+      showToast(err instanceof Error ? err.message : "Error al revisar solicitud", "error");
     }
   };
 
@@ -1100,10 +1112,13 @@ export function Portal({
                     family.settings.negativeEnabled = form.get("negativos") === "on";
                     family.settings.screenLockMargins = form.get("screenLockMargins") === "on";
                     setScreenLockSetting(family.settings.screenLockMargins);
+                    const haptics = form.get("hapticsEnabled") === "on";
+                    family.settings.hapticsEnabled = haptics;
+                    setHapticsEnabled(haptics);
                     saveStoredFamily({ ...family });
                     hapticSuccess();
                     onUpdate();
-                    alert("Configuración guardada correctamente");
+                    showToast("¡Configuración familiar guardada correctamente!", "success");
                   }}
                   style={{ display: "flex", flexDirection: "column", gap: 12 }}
                 >
@@ -1139,6 +1154,33 @@ export function Portal({
                       </small>
                     </span>
                   </label>
+                  <label className="checkbox" style={{ marginTop: 2, alignItems: "flex-start" }}>
+                    <input
+                      type="checkbox"
+                      name="hapticsEnabled"
+                      defaultChecked={family.settings.hapticsEnabled ?? isHapticsEnabled()}
+                      style={{ marginTop: 3 }}
+                    />
+                    <span>
+                      <strong>Vibración y retroalimentación táctil (Hápticos)</strong>
+                      <small style={{ display: "block", color: "var(--muted)", fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>
+                        Emite vibraciones sutiles al pulsar botones, marcar tareas, registrar puntos y desbloquear con PIN. Desactívalo para un modo silencioso sin vibración.
+                      </small>
+                    </span>
+                  </label>
+                  <div style={{ paddingLeft: "26px", marginTop: "-4px", marginBottom: "4px" }}>
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      style={{ fontSize: "11px", minHeight: "34px", padding: "4px 11px" }}
+                      onClick={async () => {
+                        await testHaptic();
+                        showToast("¡Vibración táctil de prueba ejecutada!", "info");
+                      }}
+                    >
+                      📳 Probar vibración táctil
+                    </button>
+                  </div>
                   <button type="submit" className="button primary">
                     Guardar reglas
                   </button>
@@ -1180,7 +1222,7 @@ export function Portal({
                           if (navigator.clipboard && navigator.clipboard.writeText) {
                             await navigator.clipboard.writeText(json);
                             hapticSuccess();
-                            alert("Copia de seguridad copiada al portapapeles.");
+                            showToast("¡Copia de seguridad copiada al portapapeles!", "success");
                           } else {
                             throw new Error("Portapapeles no disponible");
                           }
@@ -1193,7 +1235,7 @@ export function Portal({
                             });
                           } catch {
                             hapticWarning();
-                            alert("No se pudo copiar al portapapeles automáticamente.");
+                            showToast("No se pudo copiar al portapapeles automáticamente.", "warning");
                           }
                         }
                       }}

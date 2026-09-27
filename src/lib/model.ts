@@ -54,6 +54,7 @@ export type Family = {
     timezone: string;
     screenLockMargins?: boolean;
     adultPin?: string;
+    hapticsEnabled?: boolean;
   };
   children: Child[];
   tasks: Task[];

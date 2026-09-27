@@ -6,6 +6,7 @@ import { dayKey } from "./lib/model";
 import { getScreenLockSetting, applyScreenLock } from "./lib/screen-lock";
 import { Portal } from "./components/portal";
 import { Welcome } from "./components/welcome";
+import { ToastContainer } from "./components/toast";
 import { initNotificationActions } from "./lib/notifications";
 
 export function App() {
@@ -84,21 +85,29 @@ export function App() {
   };
 
   if (!family || !user) {
-    return <Welcome setup={!family} onComplete={handleUpdate} />;
+    return (
+      <>
+        <ToastContainer />
+        <Welcome setup={!family} onComplete={handleUpdate} />
+      </>
+    );
   }
 
   const today = dayKey(family.settings.timezone);
 
   return (
-    <Portal
-      snapshot={{
-        family,
-        user,
-        members: user.role === "parent" ? members : [user],
-        today,
-      }}
-      onUpdate={handleUpdate}
-    />
+    <>
+      <ToastContainer />
+      <Portal
+        snapshot={{
+          family,
+          user,
+          members: user.role === "parent" ? members : [user],
+          today,
+        }}
+        onUpdate={handleUpdate}
+      />
+    </>
   );
 }
 
